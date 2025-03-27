@@ -18,7 +18,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
         <article className="bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-300 hover:translate-y-[-5px]">
             <img src={post.imageUrl} alt={post.title} className="w-full h-48 object-cover" />
             <div className="p-6">
-                <a className="text-xs font-medium text-blue-600 uppercase tracking-wider" href={`/category/${post.category}`}>{post.category}</a>
+                <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">{post.category}</p>
                 <h3 className="mt-2 text-xl font-semibold text-gray-800">
                     {post.title}
                 </h3>

@@ -9,19 +9,19 @@ export default function Footer() {
             <div className="container mx-auto py-12 px-4 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="md:col-span-1">
-                        <a href="/" className="text-2xl font-bold tracking-tight transition-colors hover:text-primary">TechTrends</a>
+                        <a href="/" className="text-2xl font-bold tracking-tight transition-colors hover:text-blue-600">TechTrends</a>
                         <p className="mt-2 text-sm text-gray-600">Ваш источник последних технологических трендов, новостей и информации.</p>
                         <div className="mt-4 flex space-x-4">
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition-colors" aria-label="GitHub">
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="GitHub">
                                 <GitHubIcon />
                             </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition-colors" aria-label="Twitter">
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="Twitter">
                                 <TwitterIcon />
                             </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition-colors" aria-label="LinkedIn">
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="LinkedIn">
                                 <LinkedInIcon />
                             </a>
-                            <a href="mailto:contact@techtrends.com" className="text-gray-500 hover:text-primary transition-colors" aria-label="Email">
+                            <a href="mailto:contact@techtrends.com" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="Email">
                                 <MailIcon />
                             </a>
                         </div>
@@ -29,22 +29,22 @@ export default function Footer() {
                     <div className="md:col-span-1">
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Категории</h3>
                         <ul className="mt-4 space-y-2">
-                            <li><a href="/category/веб-разработка" className="text-sm text-gray-600 hover:text-primary transition-colors">Веб-разработка</a></li>
-                            <li><a href="/category/мобильная-разработка" className="text-sm text-gray-600 hover:text-primary transition-colors">Мобильная разработка</a></li>
-                            <li><a href="/category/искусственный-интеллект" className="text-sm text-gray-600 hover:text-primary transition-colors">Искусственный интеллект</a></li>
-                            <li><a href="/category/большие-данные" className="text-sm text-gray-600 hover:text-primary transition-colors">Большие данные</a></li>
-                            <li><a href="/category/облачные-технологии" className="text-sm text-gray-600 hover:text-primary transition-colors">Облачные технологии</a></li>
-                            <li><a href="/category/кибербезопасность" className="text-sm text-gray-600 hover:text-primary transition-colors">Кибербезопасность</a></li>
+                            <li><a href="/category/веб-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Веб-разработка</a></li>
+                            <li><a href="/category/мобильная-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Мобильная разработка</a></li>
+                            <li><a href="/category/искусственный-интеллект" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Искусственный интеллект</a></li>
+                            <li><a href="/category/большие-данные" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Большие данные</a></li>
+                            <li><a href="/category/облачные-технологии" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Облачные технологии</a></li>
+                            <li><a href="/category/кибербезопасность" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Кибербезопасность</a></li>
                         </ul>
                     </div>
                     <div className="md:col-span-1">
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Быстрые ссылки</h3>
                         <ul className="mt-4 space-y-2">
-                            <li><a href="/about" className="text-sm text-gray-600 hover:text-primary transition-colors">О нас</a></li>
-                            <li><a href="/contact" className="text-sm text-gray-600 hover:text-primary transition-colors">Контакты</a></li>
-                            <li><a href="/privacy-policy" className="text-sm text-gray-600 hover:text-primary transition-colors">Политика конфиденциальности</a></li>
-                            <li><a href="/terms-of-service" className="text-sm text-gray-600 hover:text-primary transition-colors">Условия использования</a></li>
-                            <li><a href="/writers" className="text-sm text-gray-600 hover:text-primary transition-colors">Наши авторы</a></li>
+                            <li><a href="/about" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">О нас</a></li>
+                            <li><a href="/contact" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Контакты</a></li>
+                            <li><a href="/privacy-policy" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Политика конфиденциальности</a></li>
+                            <li><a href="/terms-of-service" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Условия использования</a></li>
+                            <li><a href="/writers" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Наши авторы</a></li>
                         </ul>
                     </div>
                     <div className="md:col-span-1">
@@ -53,7 +53,7 @@ export default function Footer() {
                         <form className="mt-4">
                             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                                 <input type="email" placeholder="Ваш email" className="flex-1 min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-primary" required />
-                                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base font-bold h-10 px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 transition duraction-300" type="submit">Подписаться</button>
+                                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base font-bold h-10 px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 transition-colors duration-300" type="submit">Подписаться</button>
                             </div>
                         </form>
                     </div>
