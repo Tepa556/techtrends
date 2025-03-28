@@ -34,7 +34,7 @@ export default function AuthModal({ isOpen, onClose, onLogin, onRegister, error,
                     onClick={onClose}
                     className="absolute right-6 top-3"
                 >
-                    <CloseIcon className='cursor-pointer' />
+                    <CloseIcon className='cursor-pointer'/>
                 </button>
             </DialogTitle>
             <DialogContent>
