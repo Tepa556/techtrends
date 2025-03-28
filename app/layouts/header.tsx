@@ -8,25 +8,41 @@ import AuthModal from './authModal';
 import RegModal from './regModal';
 import { Avatar } from '@mui/material';
 import SearchDialog from './searchModal';
+import { jwtDecode } from 'jwt-decode';
 
 interface Category {
     name: string;
     link: string;
 }
 
+interface User {
+    email: string;
+    username?: string;
+}
+
 export default function Header() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isRegModalOpen, setIsRegModalOpen] = useState(false);
-    const [isRegistered, setIsRegistered] = useState(false);
-    const [user, setUser] = useState<{ username: string; avatar: string } | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('token');
         if (token) {
-            setUser({ username: 'UserNickname', avatar: 'path/to/avatar.jpg' });
-            setIsRegistered(true);
+            fetch('/api/user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при получении данных пользователя');
+                }
+                return response.json();
+            })
+            .then(data => setUser(data))
+            .catch(error => console.error('Ошибка:', error));
         }
     }, []);
 
@@ -42,44 +58,76 @@ export default function Header() {
 
     const handleLogin = async (email: string, password: string) => {
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('/api/auth', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ email, password }),
             });
-            const data = await response.json();
-            if (response.ok) {
-                localStorage.setItem('accessToken', data.accessToken);
-                setUser({ username: data.username, avatar: data.avatar });
-                setIsRegistered(true);
-                setIsAuthModalOpen(false);
-            } else {
-                setError(data.message);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка при авторизации');
             }
-        } catch (err) {
-            setError('Ошибка входа. Попробуйте еще раз.');
+
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            console.log('Авторизация успешна, токен сохранен');
+            setIsAuthModalOpen(false);
+            fetchUserData(data.token);
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Произошла неизвестная ошибка');
+            }
         }
     };
 
     const handleRegister = async (username: string, email: string, password: string) => {
         try {
-            const response = await fetch('/api/register', {
+            const response = await fetch('/api/reg', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ username, email, password }),
             });
-            const data = await response.json();
-            if (response.ok) {
-                localStorage.setItem('accessToken', data.accessToken);
-                setUser({ username: data.username, avatar: data.avatar });
-                setIsRegistered(true);
-                setIsRegModalOpen(false);
-            } else {
-                setError(data.message);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка при регистрации');
             }
-        } catch (err) {
-            setError('Ошибка регистрации. Попробуйте еще раз.');
+
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            console.log('Регистрация успешна, токен сохранен');
+            setIsRegModalOpen(false);
+            fetchUserData(data.token);
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Произошла неизвестная ошибка');
+            }
         }
+    };
+
+    const fetchUserData = (token: string) => {
+        fetch('/api/user', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных пользователя');
+            }
+            return response.json();
+        })
+        .then(data => setUser(data))
+        .catch(error => console.error('Ошибка:', error));
     };
 
     const handleOpenSearch = () => {
@@ -116,11 +164,13 @@ export default function Header() {
                         >
                             <SearchIcon className="h-5 w-5" />
                         </button>
-                        {isRegistered ? (
-                            <div className="flex items-center space-x-2">
-                                <Avatar src={user?.avatar} alt={user?.username} />
-                                <span className="text-sm font-semibold">{user?.username}</span>
-                            </div>
+                        {user ? (
+                            <>
+                                <div className="flex items-center space-x-2">
+                                    <Avatar src="" alt={user?.username} />
+                                    <span className="text-sm font-semibold"><a href="/profile" className='transition duraction-300 hover:text-blue-500 '>{user?.username}</a></span>
+                                </div>
+                            </>
                         ) : (
                             <div className="ml-4 flex items-center space-x-2">
                                 <button onClick={handleOpenLogin} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 px-4 py-2">Войти</button>
