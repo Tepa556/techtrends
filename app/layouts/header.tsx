@@ -1,15 +1,17 @@
-"use client"
+"use client";
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { categories } from '@/app/lib/nav-categories';
 import SearchIcon from '@mui/icons-material/Search';
 import MoonIcon from '@mui/icons-material/Brightness2';
-import AuthModal from './authModal';
-import RegModal from './regModal';
+import AuthModal from '../ui/authModal';
+import RegModal from '../ui/regModal';
 import { Avatar } from '@mui/material';
-import SearchDialog from './searchModal';
+import SearchDialog from '../ui/searchModal';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
+import jwt from 'jsonwebtoken';
+import { useRouter } from 'next/navigation';
 
 interface Category {
     name: string;
@@ -20,6 +22,7 @@ interface User {
     username?: string;
     avatar?: string;
 }
+
 export default function Header() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isRegModalOpen, setIsRegModalOpen] = useState(false);
@@ -27,15 +30,30 @@ export default function Header() {
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    const removeToken = useCallback(() => {
+        Cookies.remove('token');
+        setUser(null);
+        setLoading(false);
+        console.log('Токен удален, пользователь разлогинен');
+        router.push('/'); // Redirect to home page
+    }, [router]);
 
     useEffect(() => {
         const token = Cookies.get('token');
         if (token) {
-            fetchUserData(token);
+            const decoded: any = jwt.decode(token);
+            const currentTime = Date.now() / 1000; // Время в секундах
+            if (decoded.exp < currentTime) {
+                removeToken();
+            } else {
+                fetchUserData(token);
+            }
         } else {
             setLoading(false);
         }
-    }, []);
+    }, [removeToken]);
 
     const fetchUserData = async (token: string) => {
         try {
@@ -45,6 +63,9 @@ export default function Header() {
                 },
             });
             if (!response.ok) {
+                if (response.status === 401) {
+                    removeToken();
+                }
                 throw new Error('Ошибка при получении данных пользователя');
             }
             const data = await response.json();
@@ -92,6 +113,7 @@ export default function Header() {
             }
         }
     };
+
     const handleRegister = async (username: string, email: string, password: string) => {
         try {
             const response = await fetch('/api/reg', {
@@ -128,7 +150,9 @@ export default function Header() {
     const handleCloseSearch = () => {
         setIsSearchOpen(false);
     };
-
+    const handleLogout = () => {
+        removeToken();
+    };
     const handleProfilesClick = () => {
         if (user) {
             window.location.href = '/profiles';
@@ -157,14 +181,14 @@ export default function Header() {
                             </div>
                         </div>
                         <a href="/about" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">О нас</a>
-                        <button 
-                            onClick={handleProfilesClick} 
+                        <button
+                            onClick={handleProfilesClick}
                             className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500"
                         >
                             Профили
                         </button>
-                        <button 
-                            onClick={handleOpenSearch} 
+                        <button
+                            onClick={handleOpenSearch}
                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 w-10"
                         >
                             <SearchIcon className="h-5 w-5" />
@@ -187,6 +211,7 @@ export default function Header() {
                                 <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
                                     {user.username || user.email}
                                 </Link>
+ 
                             </div>
                         ) : (
                             <div className="ml-4 flex items-center space-x-2">
@@ -197,26 +222,25 @@ export default function Header() {
                     </nav>
                 </div>
             </header>
-            <AuthModal 
-                isOpen={isAuthModalOpen} 
-                onClose={() => setIsAuthModalOpen(false)} 
-                onLogin={handleLogin} 
-                onRegister={handleRegister} 
-                error={error} 
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                onLogin={handleLogin}
+                onRegister={handleRegister}
+                error={error}
                 onOpenRegister={handleOpenRegister}
             />
-            <RegModal 
-                isOpen={isRegModalOpen} 
-                onClose={() => setIsRegModalOpen(false)} 
-                onRegister={handleRegister} 
-                error={error} 
+            <RegModal
+                isOpen={isRegModalOpen}
+                onClose={() => setIsRegModalOpen(false)}
+                onRegister={handleRegister}
+                error={error}
                 onOpenLogin={handleOpenLogin}
             />
-            <SearchDialog 
-                isOpen={isSearchOpen} 
-                onClose={handleCloseSearch} 
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onClose={handleCloseSearch}
             />
         </>
     );
 }
-

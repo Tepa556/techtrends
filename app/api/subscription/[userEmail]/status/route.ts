@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 import jwt from 'jsonwebtoken';
 
-const uri = process.env.MONGODB_URL!;
+const uri = `${process.env.MONGODB_URL}`;
 
 export async function GET(request: NextRequest, { params }: { params: { userEmail: string } }) {
     const authHeader = request.headers.get('Authorization');

@@ -9,6 +9,7 @@ interface SubscribeButtonProps {
 
 const SubscribeButton: React.FC<SubscribeButtonProps> = ({ userEmail, currentUserEmail }) => {
     const [isSubscribed, setIsSubscribed] = useState(false); // Состояние подписки
+    const [loading, setLoading] = useState(true); // Состояние загрузки
 
     useEffect(() => {
         const checkSubscription = async () => {
@@ -28,6 +29,8 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ userEmail, currentUse
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
+            } finally {
+                setLoading(false); // Устанавливаем состояние загрузки в false после завершения проверки
             }
         };
 
@@ -57,10 +60,15 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ userEmail, currentUse
         }
     };
 
+    // Отображение скелета загрузки
+    if (loading) {
+        return <div className="animate-pulse bg-gray-300 h-8 w-32 rounded"></div>; // Пример скелета
+    }
+
     return (
         <button
             onClick={handleSubscribe}
-            className={`mt-2 px-4 py-2 rounded transition duration-300 ${isSubscribed ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'}`}
+            className={`font-bold mt-2 px-4 py-2 rounded-xl transition duration-300 ${isSubscribed ? 'bg-red-500 text-white transition duration-300 hover:bg-red-600' : 'bg-blue-500 text-white transition duration-300 hover:bg-blue-600'}`}
         >
             {isSubscribed ? 'Отписаться' : 'Подписаться'}
         </button>

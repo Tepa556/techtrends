@@ -5,36 +5,41 @@ import jwt from 'jsonwebtoken';
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
 
-export async function GET(req: NextRequest) {
+export async function DELETE(req: NextRequest) {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
         return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
     }
 
     const token = authHeader.split(' ')[1];
+    let currentUserEmail;
+
     try {
         const decoded = jwt.verify(token, jwtSecret) as { email: string };
-        const client = new MongoClient(uri);
+        currentUserEmail = decoded.email;
+    } catch (error) {
+        return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
+    }
+
+    const client = new MongoClient(uri);
+    try {
         await client.connect();
         const database = client.db('local');
         const usersCollection = database.collection('users');
 
-        const user = await usersCollection.findOne({ email: decoded.email });
+        const user = await usersCollection.findOne({ email: currentUserEmail });
         if (!user) {
             return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
         }
 
-        return NextResponse.json({
-            email: user.email,
-            username: user.username,
-            avatar: user.avatar,
-            subscribers: user.subscribers,
-            subscriptions: user.subscriptions,  
-            posts: user.posts,
-            notifications: user.notifications
-        }, { status: 200 });
+        // Удаляем пользователя и все связанные данные
+        await usersCollection.deleteOne({ email: currentUserEmail });
+
+        return NextResponse.json({ message: 'Аккаунт удален' });
     } catch (error) {
-        console.error('Ошибка при проверке токена:', error);
-        return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
+        console.error('Ошибка при удалении аккаунта:', error);
+        return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+    } finally {
+        await client.close();
     }
 }

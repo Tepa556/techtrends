@@ -19,21 +19,21 @@ export default function LogOutModal({ isOpen, onConfirm, onCancel }: LogoutConfi
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: 300,
+                    width: 600,
                     bgcolor: 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
                 }}
             >
-                <h2>Вы действительно хотите выйти?</h2>
-                <div className="flex justify-end space-x-2 mt-4">
-                    <Button variant="contained" color="primary" onClick={onConfirm}>
+                <h2 className='font-bold text-3xl'>Вы действительно хотите выйти?</h2>
+                <div className="flex justify-end space-x-2 mt-4 gap-4 text-white">
+                    <button  onClick={onConfirm} className='w-20 h-7 rounded-xl bg-red-600 font-bold transition duraction-300 hover:bg-red-700'>
                         Да
-                    </Button>
-                    <Button variant="outlined" color="secondary" onClick={onCancel}>
+                    </button>
+                    <button  onClick={onCancel}  className='w-20 h-7 rounded-xl bg-green-600 font-bold transition duraction-300 hover:bg-green-700'>
                         Нет
-                    </Button>
+                    </button>
                 </div>
             </Box>
         </Modal>

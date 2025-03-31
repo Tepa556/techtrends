@@ -26,19 +26,19 @@ export default function ProfilesList() {
                 'Authorization': `Bearer ${token}`,
             },
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при получении списка пользователей');
-            }
-            return response.json();
-        })
-        .then(data => {
-            setUsers(data);
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            setError('Не удалось загрузить пользователей');
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при получении списка пользователей');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setUsers(data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                setError('Не удалось загрузить пользователей');
+            });
     };
 
     useEffect(() => {
@@ -61,7 +61,7 @@ export default function ProfilesList() {
             <div className='flex justify-center'>
                 <h1 className="text-4xl font-bold mb-4">Пользователи</h1>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {users.map(user => (
                     <div key={user._id} className="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                         <Link href={`/profile/${user._id}`} className="flex items-center">
@@ -77,7 +77,9 @@ export default function ProfilesList() {
                             <span className="text-lg font-semibold">{user.username}</span>
                         </Link>
                         {currentUserEmail && (
-                            <SubscribeButton userEmail={user.email} currentUserEmail={currentUserEmail} />
+                            <div className='flex justify-center'>
+                                <SubscribeButton userEmail={user.email} currentUserEmail={currentUserEmail} />
+                            </div>
                         )}
                     </div>
                 ))}

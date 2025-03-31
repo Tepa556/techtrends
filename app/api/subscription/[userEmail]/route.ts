@@ -2,16 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 import jwt from 'jsonwebtoken';
 
-const uri = process.env.MONGODB_URL!;
-const jwtSecret = process.env.JWT_SECRET!;
+const uri = `${process.env.MONGODB_URL}`;
+const jwtSecret = `${process.env.JWT_SECRET}`;
 
 export async function POST(request: NextRequest, { params }: { params: { userEmail: string } }) {
-    const { email: currentUserEmail } = await request.json(); // Получаем email текущего пользователя
-    const client = new MongoClient(uri); // Declare and initialize client here
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+        return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    let currentUserEmail;
 
     try {
+        const decoded = jwt.verify(token, jwtSecret) as { email: string };
+        currentUserEmail = decoded.email; // Получаем email текущего пользователя
+    } catch (error) {
+        return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
+    }
+
+    const client = new MongoClient(uri);
+    try {
         await client.connect();
-        const database = client.db('local'); // Укажите имя вашей базы данных
+        const database = client.db('local');
         const usersCollection = database.collection('users');
 
         // Проверяем, существует ли пользователь
@@ -42,12 +55,25 @@ export async function POST(request: NextRequest, { params }: { params: { userEma
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { userEmail: string } }) {
-    const { email: currentUserEmail } = await request.json(); // Получаем email текущего пользователя
-    const client = new MongoClient(uri); // Declare and initialize client here
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+        return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    let currentUserEmail;
 
     try {
+        const decoded = jwt.verify(token, jwtSecret) as { email: string };
+        currentUserEmail = decoded.email; // Получаем email текущего пользователя
+    } catch (error) {
+        return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
+    }
+
+    const client = new MongoClient(uri);
+    try {
         await client.connect();
-        const database = client.db('local'); // Укажите имя вашей базы данных
+        const database = client.db('local');
         const usersCollection = database.collection('users');
 
         // Проверяем, существует ли пользователь
