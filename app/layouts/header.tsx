@@ -1,5 +1,5 @@
 "use client"
-
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { categories } from '@/app/lib/nav-categories';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,43 +8,53 @@ import AuthModal from './authModal';
 import RegModal from './regModal';
 import { Avatar } from '@mui/material';
 import SearchDialog from './searchModal';
-import { jwtDecode } from 'jwt-decode';
+import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 interface Category {
     name: string;
     link: string;
 }
-
 interface User {
     email: string;
     username?: string;
+    avatar?: string;
 }
-
 export default function Header() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isRegModalOpen, setIsRegModalOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = Cookies.get('token');
         if (token) {
-            fetch('/api/user', {
+            fetchUserData(token);
+        } else {
+            setLoading(false);
+        }
+    }, []);
+
+    const fetchUserData = async (token: string) => {
+        try {
+            const response = await fetch('/api/user', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка при получении данных пользователя');
-                }
-                return response.json();
-            })
-            .then(data => setUser(data))
-            .catch(error => console.error('Ошибка:', error));
+            });
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных пользователя');
+            }
+            const data = await response.json();
+            setUser(data);
+        } catch (error) {
+            console.error('Ошибка при получении данных пользователя:', error);
+        } finally {
+            setLoading(false);
         }
-    }, []);
+    };
 
     const handleOpenLogin = () => {
         setIsAuthModalOpen(true);
@@ -65,14 +75,12 @@ export default function Header() {
                 },
                 body: JSON.stringify({ email, password }),
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Ошибка при авторизации');
             }
-
             const data = await response.json();
-            localStorage.setItem('token', data.token);
+            Cookies.set('token', data.token);
             console.log('Авторизация успешна, токен сохранен');
             setIsAuthModalOpen(false);
             fetchUserData(data.token);
@@ -84,7 +92,6 @@ export default function Header() {
             }
         }
     };
-
     const handleRegister = async (username: string, email: string, password: string) => {
         try {
             const response = await fetch('/api/reg', {
@@ -101,7 +108,7 @@ export default function Header() {
             }
 
             const data = await response.json();
-            localStorage.setItem('token', data.token);
+            Cookies.set('token', data.token);
             console.log('Регистрация успешна, токен сохранен');
             setIsRegModalOpen(false);
             fetchUserData(data.token);
@@ -114,28 +121,20 @@ export default function Header() {
         }
     };
 
-    const fetchUserData = (token: string) => {
-        fetch('/api/user', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при получении данных пользователя');
-            }
-            return response.json();
-        })
-        .then(data => setUser(data))
-        .catch(error => console.error('Ошибка:', error));
-    };
-
     const handleOpenSearch = () => {
         setIsSearchOpen(true);
     };
 
     const handleCloseSearch = () => {
         setIsSearchOpen(false);
+    };
+
+    const handleProfilesClick = () => {
+        if (user) {
+            window.location.href = '/profiles';
+        } else {
+            setIsAuthModalOpen(true);
+        }
     };
 
     return (
@@ -159,18 +158,36 @@ export default function Header() {
                         </div>
                         <a href="/about" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">О нас</a>
                         <button 
+                            onClick={handleProfilesClick} 
+                            className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500"
+                        >
+                            Профили
+                        </button>
+                        <button 
                             onClick={handleOpenSearch} 
                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 w-10"
                         >
                             <SearchIcon className="h-5 w-5" />
                         </button>
-                        {user ? (
-                            <>
-                                <div className="flex items-center space-x-2">
-                                    <Avatar src="" alt={user?.username} />
-                                    <span className="text-sm font-semibold"><a href="/profile" className='transition duraction-300 hover:text-blue-500 '>{user?.username}</a></span>
-                                </div>
-                            </>
+                        {loading ? (
+                            <div className="flex items-center space-x-2">
+                                <div className="h-4 w-32 bg-gray-300 rounded animate-pulse"></div>
+                            </div>
+                        ) : user ? (
+                            <div className="flex items-center space-x-2">
+                                {user.avatar && (
+                                    <Image
+                                        src={user.avatar}
+                                        alt="User Avatar"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full"
+                                    />
+                                )}
+                                <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
+                                    {user.username || user.email}
+                                </Link>
+                            </div>
                         ) : (
                             <div className="ml-4 flex items-center space-x-2">
                                 <button onClick={handleOpenLogin} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 px-4 py-2">Войти</button>

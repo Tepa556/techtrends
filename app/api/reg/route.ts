@@ -3,8 +3,6 @@ import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Убедитесь, что вы установили типы для jsonwebtoken
-// npm install --save-dev @types/jsonwebtoken
 
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
@@ -35,6 +33,11 @@ export async function POST(req: NextRequest) {
             username,
             email,
             password: hashedPassword,
+            avatar:"/user-avatar/default-avatar.jpg",
+            subscribers:[],
+            subscriptions: [], 
+            posts: [],         
+            notifications: [],  
             createdAt: new Date(),
         };
 

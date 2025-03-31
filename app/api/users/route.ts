@@ -19,20 +19,16 @@ export async function GET(req: NextRequest) {
         const database = client.db('local');
         const usersCollection = database.collection('users');
 
-        const user = await usersCollection.findOne({ email: decoded.email });
-        if (!user) {
+        const currentUser = await usersCollection.findOne({ email: decoded.email });
+        if (!currentUser) {
             return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
         }
 
-        return NextResponse.json({
-            email: user.email,
-            username: user.username,
-            avatar: user.avatar,
-            subscribers: [],
-            subscriptions: [],
-            posts: [],
-            notifications: []
-        }, { status: 200 });
+        const users = await usersCollection.find({ _id: { $ne: currentUser._id } }).toArray();
+
+        await client.close();
+
+        return NextResponse.json(users, { status: 200 });
     } catch (error) {
         console.error('Ошибка при проверке токена:', error);
         return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
