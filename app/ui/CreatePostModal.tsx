@@ -24,42 +24,42 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [text, setText] = useState('');
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageBase64, setImageBase64] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+    const [isFileSelected, setIsFileSelected] = useState(false);
+
+    // Функция для преобразования файла в Base64
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageBase64(reader.result as string);
+            };
+            reader.readAsDataURL(file); // Преобразует файл в Base64
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const token = Cookies.get('token');
 
-        if (imageFile) {
-            const validExtensions = ['image/jpeg', 'image/png'];
-            if (!validExtensions.includes(imageFile.type)) {
-                setMessage('Неверный формат изображения. Используйте JPEG или PNG.');
-                return;
-            }
-
-            if (imageFile.size > 2 * 1024 * 1024) { // 2MB
-                setMessage('Размер изображения превышает 2MB.');
-                return;
-            }
-        }
-
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('category', category);
-        formData.append('text', text);
-        if (imageFile) {
-            formData.append('image', imageFile);
-        }
+        const postData = {
+            title,
+            description,
+            category,
+            text,
+            image: imageBase64, // Передаем изображение как строку Base64
+        };
 
         try {
             const response = await fetch('/api/post/create', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-                body: formData,
+                body: JSON.stringify(postData),
             });
 
             if (!response.ok) {
@@ -72,7 +72,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
             setDescription('');
             setCategory('');
             setText('');
-            setImageFile(null);
+            setImageBase64(null);
             onClose();
         } catch (error) {
             if (error instanceof Error) {
@@ -136,18 +136,21 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
                         variant="contained"
                         component="label"
                         fullWidth
-                        sx={{ mt: 2 }}
+                        sx={{
+                            mt: 2,
+                            backgroundColor: isFileSelected ? 'green' : 'primary.main',
+                            color: 'white',
+                        }}
                     >
-                        Загрузить изображение
+                        {isFileSelected ? 'Файл выбран' : 'Загрузить изображение'}
                         <input
                             type="file"
                             hidden
-                            accept="image/jpeg, image/png"
+                            accept="image/*"
                             onChange={(e) => {
-                                if (e.target.files) {
-                                    setImageFile(e.target.files[0]);
-                                }
-                            }}
+                                handleImageChange(e);
+                                setIsFileSelected(true);
+                            }}                            
                         />
                     </Button>
                     <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
@@ -159,3 +162,4 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
         </Modal>
     );
 }
+    
