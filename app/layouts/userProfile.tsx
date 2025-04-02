@@ -40,6 +40,7 @@ interface Post {
     text: string;
     imageUrl: string | null;
     author: string;
+    status: string;
     likeCount: number;
     comments: any[];
     createdAt: string;
@@ -93,10 +94,10 @@ export default function UserProfile() {
 
             const userData = await response.json();
             setUser(userData);
-            
+
             // Загружаем посты пользователя
             fetchUserPosts(userData.email);
-            
+
             // Загружаем данные о подписках пользователя
             if (userData.subscriptions && userData.subscriptions.length > 0) {
                 fetchSubscriptionUsers(userData.subscriptions);
@@ -113,7 +114,7 @@ export default function UserProfile() {
     const fetchUserPosts = async (email: string) => {
         try {
             const token = Cookies.get('token');
-            const response = await fetch(`/api/posts/user?email=${email}`, {
+            const response = await fetch('/api/post/get', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -161,8 +162,8 @@ export default function UserProfile() {
 
     // Обработчик обновления поста
     const handlePostUpdated = (updatedPost: Post) => {
-        setUserPosts(prevPosts => 
-            prevPosts.map(post => 
+        setUserPosts(prevPosts =>
+            prevPosts.map(post =>
                 post._id === updatedPost._id ? updatedPost : post
             )
         );
@@ -170,7 +171,7 @@ export default function UserProfile() {
 
     // Обработчик удаления поста
     const handlePostDeleted = (deletedPostId: string) => {
-        setUserPosts(prevPosts => 
+        setUserPosts(prevPosts =>
             prevPosts.filter(post => post._id !== deletedPostId)
         );
     };
@@ -185,7 +186,7 @@ export default function UserProfile() {
         if (user) {
             // Обновляем список подписок пользователя
             let updatedSubscriptions = [...user.subscriptions];
-            
+
             if (isSubscribed) {
                 // Добавляем подписку, если её ещё нет
                 if (!updatedSubscriptions.includes(subscriptionEmail)) {
@@ -195,16 +196,16 @@ export default function UserProfile() {
                 // Удаляем подписку
                 updatedSubscriptions = updatedSubscriptions.filter(email => email !== subscriptionEmail);
             }
-            
+
             // Обновляем данные пользователя
             setUser({
                 ...user,
                 subscriptions: updatedSubscriptions
             });
-            
+
             // Обновляем список пользователей в подписках
             if (!isSubscribed) {
-                setSubscriptionUsers(prevUsers => 
+                setSubscriptionUsers(prevUsers =>
                     prevUsers.filter(user => user.email !== subscriptionEmail)
                 );
             }
@@ -278,73 +279,100 @@ export default function UserProfile() {
     }
 
     if (!user) {
-        return <div className="container mx-auto p-4">Loading...</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen px-4">
+                <div className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg relative">
+                    <div className="flex flex-col items-start">
+                        {/* Скелетоны для профиля */}
+                        <div className="animate-pulse bg-gray-300 h-16 w-16 rounded-full mb-4"></div>
+                        <div className="animate-pulse bg-gray-300 h-8 w-32 rounded mb-2"></div>
+                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
+                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
+                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
+
+                        {/* Кнопки-скелетоны */}
+                        <div className="flex mt-4 space-x-4">
+                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                        </div>
+                        <div className="flex mt-4 space-x-4">
+                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen px-4">
             <div className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg relative">
-                <button
-                    className="absolute top-4 right-4"
-                    onClick={() => setIsEditModalOpen(true)}
-                >
-                    <EditIcon />
-                </button>
-                <h1 className="text-2xl font-bold mb-4 flex items-center">
-                    {user.avatar && (
-                        <Image
-                            src={user.avatar}
-                            alt="User Avatar"
-                            width={40}
-                            height={40}
-                            className="rounded-full mr-4"
-                        />
-                    )}
-                    Профиль
-                </h1>
-                <p><strong>Email:</strong> {user.email}</p>
-                {user.username && <p><strong>Имя пользователя:</strong> {user.username}</p>}
-                <p><strong>Количество подписчиков:</strong> {user.subscribers.length}</p>
-                <p><strong>Количество подписок:</strong> {user.subscriptions.length}</p>
 
-                <div className="flex mt-4 space-x-4">
+                <div>
                     <button
-                        className={`${activeTab === 'posts' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
-                        onClick={() => setActiveTab('posts')}
+                        className="absolute top-4 right-4"
+                        onClick={() => setIsEditModalOpen(true)}
                     >
-                        Посты
+                        <EditIcon />
                     </button>
-                    <button
-                        className={`${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
-                        onClick={() => setActiveTab('notifications')}
-                    >
-                        Уведомления
-                    </button>
-                    <button
-                        className={`${activeTab === 'subscriptions' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
-                        onClick={() => setActiveTab('subscriptions')}
-                    >
-                        Подписки
-                    </button>
+                    <h1 className="text-2xl font-bold mb-4 flex items-center">
+                        {user.avatar && (
+                            <Image
+                                src={user.avatar}
+                                alt="User Avatar"
+                                width={40}
+                                height={40}
+                                className="rounded-full mr-4"
+                            />
+                        )}
+                        Профиль
+                    </h1>
+                    <p><strong>Email:</strong> {user.email}</p>
+                    {user.username && <p><strong>Имя пользователя:</strong> {user.username}</p>}
+                    <p><strong>Количество подписчиков:</strong> {user.subscribers.length}</p>
+                    <p><strong>Количество подписок:</strong> {user.subscriptions.length}</p>
+
+                    <div className="flex mt-4 space-x-4">
+                        <button
+                            className={`${activeTab === 'posts' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            onClick={() => setActiveTab('posts')}
+                        >
+                            Посты
+                        </button>
+                        <button
+                            className={`${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            onClick={() => setActiveTab('notifications')}
+                        >
+                            Уведомления
+                        </button>
+                        <button
+                            className={`${activeTab === 'subscriptions' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            onClick={() => setActiveTab('subscriptions')}
+                        >
+                            Подписки
+                        </button>
+                    </div>
+
+                    <div className="mt-4 flex justify-between">
+                        <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded font-bold transition duration-300 ease-in-out"
+                            onClick={handleOpenCreatePostModal}
+                        >
+                            Создать пост
+                        </button>
+                        <button
+                            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded font-bold transition duration-300 ease-in-out"
+                            onClick={() => setIsLogoutModalOpen(true)}
+                        >
+                            Выйти
+                        </button>
+                    </div>
                 </div>
 
-                <div className="mt-4 flex justify-between">
-                    <button
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded font-bold transition duration-300 ease-in-out"
-                        onClick={handleOpenCreatePostModal}
-                    >
-                        Создать пост
-                    </button>
-                    <button
-                        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded font-bold transition duration-300 ease-in-out"
-                        onClick={() => setIsLogoutModalOpen(true)}
-                    >
-                        Выйти
-                    </button>
-                </div>
             </div>
 
-            <div className="min-w-[300px] max-w-[900px] bg-gray-100 p-4 mt-4 rounded-lg shadow-lg">
+            <div className="min-w-[300px] max-w-[900px] bg-gray-100 p-4 mt-4 rounded-lg shadow-lg overflow-x-auto max-h-[400px]">
                 {activeTab === 'subscriptions' && (
                     <div>
                         <h2 className="text-xl font-bold mb-2">Подписки</h2>
@@ -363,9 +391,9 @@ export default function UserProfile() {
                                                 />
                                             )}
                                             <span className='mr-4'>{sub.username}</span>
-                                            <SubscribeButton 
-                                                userEmail={sub.email} 
-                                                currentUserEmail={user.email} 
+                                            <SubscribeButton
+                                                userEmail={sub.email}
+                                                currentUserEmail={user.email}
                                                 onSubscriptionChange={handleSubscriptionChange}
                                             />
                                         </div>
@@ -377,73 +405,81 @@ export default function UserProfile() {
                         </div>
                     </div>
                 )}
-                
+
                 {activeTab === 'posts' && (
                     <div>
                         <h2 className="text-xl font-bold mb-2">Мои посты</h2>
-                        <div className="flex flex-wrap gap-2 justify-center">
-                            {userPosts.length > 0 ? (
-                                userPosts.map((post) => (
-                                    <div key={post._id} className="min-w-96 bg-white p-4 rounded-lg shadow-md flex items-center">
-                                        <div className="mr-4">
-                                            <h3 className="font-bold">{post.title}</h3>
-                                            <p><strong>Описание:</strong> {post.description}</p>
-                                            <p><strong>Категория:</strong> {post.category}</p>
-                                            <p><strong>Дата создания:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
-                                            <p><strong>Лайки:</strong> {post.likeCount}</p>
-                                            <p><strong>Комментарии:</strong> {post.comments.length}</p>
-                                            <div className="flex space-x-2 mt-2">
-                                                <button className="text-blue-500" onClick={() => handleOpenEditPostModal(post)}>
-                                                    <EditIcon />
-                                                </button>
-                                                <button className="text-red-500" onClick={() => handleOpenDeletePostModal(post._id)}>
-                                                    <DeleteIcon />
-                                                </button>
+                        <div className="flex flex-nowrap gap-2 justify-start">
+                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-y-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                                {userPosts.length > 0 ? (
+                                    userPosts.map((post) => (
+                                        <div key={post._id} className="min-w-96 bg-white p-4 rounded-lg shadow-md flex items-center">
+                                            <div className="mr-4">
+                                                <h3 className="font-bold">{post.title}</h3>
+                                                <p><strong>Описание:</strong> {post.description}</p>
+                                                <p><strong>Категория:</strong> {post.category}</p>
+                                                <p><strong>Дата создания:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
+                                                <p><strong>Комментарии:</strong> {post.status}</p>
+                                                <p><strong>Лайки:</strong> {post.likeCount}</p>
+                                                <p><strong>Комментарии:</strong> {post.comments.length}</p>
+                                                <div className="flex space-x-2 mt-2">
+                                                    <button className="text-blue-500" onClick={() => handleOpenEditPostModal(post)}>
+                                                        <EditIcon />
+                                                    </button>
+                                                    <button className="text-red-500" onClick={() => handleOpenDeletePostModal(post._id)}>
+                                                        <DeleteIcon />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className='font-bold'>У вас нет постов.</p>
-                            )}
+                                    ))
+                                ) : (
+                                    <p className='font-bold'>У вас нет постов.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}
 
                 {activeTab === 'notifications' && (
                     <div>
-                        {user.notifications && user.notifications.length > 0 ? (
-                            <div className="space-y-4">
-                                {user.notifications.map((notification, index) => (
-                                    <div key={index} className="bg-white p-4 rounded-lg shadow-md w-full relative">
-                                        <div className='flex justify-between gap-2'>
-                                            <p className="font-medium">{notification.message} {new Date(notification.createdAt).toLocaleString('ru-RU', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}</p>
-                                            <button
-                                                className="text-gray-500 hover:text-red-500 transition-colors"
-                                                onClick={() => handleDeleteNotification(index)}
-                                                aria-label="Удалить уведомление"
-                                            >
-                                                <DeleteIcon fontSize="small" />
-                                            </button>
-                                        </div>
+                        <h2 className="text-xl font-bold mb-2">Мои посты</h2>
+                        <div className="flex flex-nowrap gap-2 justify-start">
+                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-x-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                                {user.notifications && user.notifications.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {user.notifications.map((notification, index) => (
+                                            <div key={index} className="bg-white p-4 rounded-lg shadow-md w-full relative">
+                                                <div className='flex justify-between gap-2'>
+                                                    <p className="font-medium">{notification.message} {new Date(notification.createdAt).toLocaleString('ru-RU', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}</p>
+                                                    <button
+                                                        className="text-gray-500 hover:text-red-500 transition-colors"
+                                                        onClick={() => handleDeleteNotification(index)}
+                                                        aria-label="Удалить уведомление"
+                                                    >
+                                                        <DeleteIcon fontSize="small" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                ) : (
+                                    <p className='font-bold'>У вас нет уведомлений.</p>
+                                )}
                             </div>
-                        ) : (
-                            <p className='font-bold'>У вас нет уведомлений.</p>
-                        )}
+                        </div>
                     </div>
                 )}
             </div>
 
-            <EditAccountModal 
-                isOpen={isEditModalOpen} 
+            <EditAccountModal
+                isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onUserUpdated={handleUserUpdated}
             />
@@ -454,22 +490,22 @@ export default function UserProfile() {
                 onCancel={() => setIsLogoutModalOpen(false)}
             />
 
-            <CreatePostModal 
-                isOpen={isCreatePostModalOpen} 
+            <CreatePostModal
+                isOpen={isCreatePostModalOpen}
                 onClose={handleCloseCreatePostModal}
-                onPostCreated={handlePostCreated} 
+                onPostCreated={handlePostCreated}
             />
 
-            <EditPostModal 
-                isOpen={isEditPostModalOpen} 
-                onClose={handleCloseEditPostModal} 
+            <EditPostModal
+                isOpen={isEditPostModalOpen}
+                onClose={handleCloseEditPostModal}
                 post={selectedPost}
                 onPostUpdated={handlePostUpdated}
             />
 
-            <DeletePostModal 
-                isOpen={isDeletePostModalOpen} 
-                onClose={handleCloseDeletePostModal} 
+            <DeletePostModal
+                isOpen={isDeletePostModalOpen}
+                onClose={handleCloseDeletePostModal}
                 postId={selectedPostId}
                 onPostDeleted={handlePostDeleted}
             />

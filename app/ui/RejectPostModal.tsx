@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Box, TextField, Button } from '@mui/material';
+import { Modal, Box, TextField } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface RejectPostModalProps {
@@ -70,21 +70,18 @@ export default function RejectPostModal({ isOpen, onClose, onReject }: RejectPos
                 </div>
 
                 <div className="flex justify-end space-x-2">
-                    <Button
-                        variant="outlined"
+                    <button
                         onClick={onClose}
-                        sx={{ borderRadius: '4px' }}
+                        className="font-bold border border-gray-300 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded transition duration-300 ease-in-out"
                     >
                         Отмена
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
+                    </button>
+                    <button
                         onClick={handleSubmit}
-                        sx={{ borderRadius: '4px' }}
+                        className="font-bold bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded transition duration-300 ease-in-out"
                     >
                         Отклонить
-                    </Button>
+                    </button>
                 </div>
             </Box>
         </Modal>

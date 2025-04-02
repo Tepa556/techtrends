@@ -8,7 +8,7 @@ const FirstSection = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
                     <a className="px-6 py-3 rounded-lg border border-gray-300 hover:border-blue-600 text-gray-900 font-bold transition-colors" href="/about">О TechTrends</a>
                 </div>
-            </div>
+            </div>  
         </section>
     );
 };

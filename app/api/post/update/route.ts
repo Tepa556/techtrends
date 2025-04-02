@@ -25,27 +25,32 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
     }
 
+    const { postId, title, description, category, text, image } = await req.json();
+
+    if (!postId || !title || !description || !category || !text) {
+        return NextResponse.json({ error: 'Все поля обязательны для заполнения' }, { status: 400 });
+    }
+
     try {
-        const { postId, title, description, category, text, image } = await req.json();
-
-        if (!postId || !title || !description || !category || !text) {
-            return NextResponse.json({ error: 'Все поля обязательны для заполнения' }, { status: 400 });
-        }
-
         const client = new MongoClient(uri);
         await client.connect();
         const database = client.db('local');
         const postsCollection = database.collection('posts');
 
-        // Проверяем, существует ли пост и принадлежит ли он текущему пользователю
-        const existingPost = await postsCollection.findOne({ 
-            _id: new ObjectId(postId),
-            author: currentUserEmail 
-        });
+        const existingPost = await postsCollection.findOne({ _id: new ObjectId(postId) });
 
         if (!existingPost) {
             await client.close();
-            return NextResponse.json({ error: 'Пост не найден или у вас нет прав для его редактирования' }, { status: 404 });
+            return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+        }
+
+        // Проверяем, был ли пост отклонен
+        if (existingPost.status === 'Отклонен') {
+            // Изменяем статус на "В рассмотрении"
+            await postsCollection.updateOne(
+                { _id: new ObjectId(postId) },
+                { $set: { status: 'На рассмотрении' } }
+            );
         }
 
         // Обрабатываем новое изображение, если оно было предоставлено
@@ -97,34 +102,14 @@ export async function PUT(req: NextRequest) {
             }
         }
 
-        // Обновляем пост
-        const updateResult = await postsCollection.updateOne(
+        // Обновляем остальные поля поста
+        await postsCollection.updateOne(
             { _id: new ObjectId(postId) },
-            { 
-                $set: {
-                    title,
-                    description,
-                    category,
-                    text,
-                    imageUrl,
-                    updatedAt: new Date().toISOString()
-                } 
-            }
+            { $set: { title, description, category, text, imageUrl, updatedAt: new Date().toISOString() } }
         );
 
-        if (updateResult.modifiedCount === 0) {
-            await client.close();
-            return NextResponse.json({ error: 'Не удалось обновить пост' }, { status: 500 });
-        }
-
-        // Получаем обновленный пост
-        const updatedPost = await postsCollection.findOne({ _id: new ObjectId(postId) });
-        
         await client.close();
-        return NextResponse.json({ 
-            message: 'Пост успешно обновлен',
-            post: updatedPost
-        });
+        return NextResponse.json({ message: 'Пост успешно обновлен', post: { ...existingPost, title, description, category, text, imageUrl } }, { status: 200 });
     } catch (error) {
         console.error('Ошибка при обновлении поста:', error);
         return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

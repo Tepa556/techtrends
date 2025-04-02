@@ -41,7 +41,9 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
             setCategory(post.category);
             setText(post.text);
             setImagePreview(post.imageUrl);
+            console.log(post.imageUrl)
         }
+
     }, [isOpen, post]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

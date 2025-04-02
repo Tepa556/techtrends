@@ -27,10 +27,20 @@ const PUBLIC_PATHS = [
     '/api',             // API эндпоинты
 ];
 
+// Функция для проверки, является ли путь публичным
+const isPublicPath = (path: string) => {
+    return PUBLIC_PATHS.some(publicPath => path.startsWith(publicPath)) || path.startsWith('/post-back');
+};
+
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
     
     console.log("Обрабатывается путь:", path);
+    
+    // Пропускаем запросы к статическим файлам
+    if (path.startsWith('/post-back')|| path.startsWith('/user-avatar') || path.startsWith('/api')) {
+        return NextResponse.next();
+    }
     
     // 1. Обработка путей администратора
     if (path.startsWith('/admin')) {
@@ -74,29 +84,13 @@ export async function middleware(request: NextRequest) {
         }
         
         // Проверяем валидность токена
-        try {
-            const jwtSecret = process.env.JWT_SECRET || '';
-            jwt.verify(userToken, jwtSecret);
-            console.log("Токен пользователя валиден");
-        } catch (error) {
-            console.log("Перенаправление на главную (недействительный токен)");
-            return NextResponse.redirect(new URL(HOME_PATH, request.url));
-        }
+
     } else {
         console.log("Публичный путь, пропускаем без проверки");
     }
     
     console.log("Пропускаем запрос дальше");
     return NextResponse.next();
-}
-
-// Функция для проверки, является ли путь публичным
-function isPublicPath(path: string): boolean {
-    // Проверяем точное совпадение или если путь начинается с публичного пути + "/"
-    return PUBLIC_PATHS.some(publicPath => 
-        path === publicPath || 
-        (path.startsWith(publicPath + '/') && publicPath !== '/')
-    );
 }
 
 // Обрабатываем все пути, кроме статических файлов и API

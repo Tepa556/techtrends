@@ -23,9 +23,9 @@ interface Post {
 
 // Константы для статусов постов
 const POST_STATUS = {
-    PENDING: 'pending',
-    PUBLISHED: 'published',
-    REJECTED: 'rejected',
+    PENDING: 'На рассмотрении',
+    PUBLISHED: 'Опубликован',
+    REJECTED: 'Отклонен',
 };
 
 export default function AdminDashboard() {
@@ -60,6 +60,7 @@ export default function AdminDashboard() {
             }
 
             const data = await response.json();
+            console.log(data.imageUrl)
             setPosts(data.posts);
         } catch (error) {
             setError('Ошибка при загрузке постов');
@@ -124,21 +125,18 @@ export default function AdminDashboard() {
 
     const handleRejectPost = async (reason: string) => {
         if (!selectedPost) return;
-        
+
         try {
             setStatusUpdateLoading(true);
             const token = Cookies.get('admin_token');
-            
-            const response = await fetch(`/api/admin/posts/${selectedPost._id}/status`, {
+
+            const response = await fetch(`/api/admin/posts/${selectedPost._id}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    status: POST_STATUS.REJECTED,
-                    rejectionReason: reason
-                })
+                body: JSON.stringify({ reason }) // Передаем причину отклонения
             });
 
             if (!response.ok) {
@@ -148,7 +146,7 @@ export default function AdminDashboard() {
             // Обновляем состояние
             setPosts(prevPosts => 
                 prevPosts.map(post => 
-                    post._id === selectedPost._id ? { ...post, status: POST_STATUS.REJECTED } : post
+                    post._id === selectedPost._id ? { ...post, status: 'Отклонен' } : post
                 )
             );
 
@@ -176,6 +174,7 @@ export default function AdminDashboard() {
         ? posts 
         : posts.filter(post => post.status === activeTab);
 
+
     return (
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow-sm">
@@ -183,7 +182,7 @@ export default function AdminDashboard() {
                     <h1 className="text-2xl font-semibold text-gray-900">Панель администратора</h1>
                     <button
                         onClick={handleLogout}
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out"
+                        className="font-bold px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out"
                     >
                         Выйти
                     </button>
@@ -200,7 +199,7 @@ export default function AdminDashboard() {
 
                 <div className="flex mb-6 space-x-2">
                     <button
-                        className={`px-4 py-2 rounded font-medium transition duration-300 ease-in-out ${
+                        className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out  ${
                             activeTab === 'all' 
                                 ? 'bg-blue-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -210,7 +209,7 @@ export default function AdminDashboard() {
                         Все посты
                     </button>
                     <button
-                        className={`px-4 py-2 rounded font-medium transition duration-300 ease-in-out ${
+                        className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.PENDING 
                                 ? 'bg-blue-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -220,7 +219,7 @@ export default function AdminDashboard() {
                         Ожидающие
                     </button>
                     <button
-                        className={`px-4 py-2 rounded font-medium transition duration-300 ease-in-out ${
+                        className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.PUBLISHED 
                                 ? 'bg-blue-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -230,7 +229,7 @@ export default function AdminDashboard() {
                         Опубликованные
                     </button>
                     <button
-                        className={`px-4 py-2 rounded font-medium transition duration-300 ease-in-out ${
+                        className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.REJECTED 
                                 ? 'bg-blue-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -256,8 +255,8 @@ export default function AdminDashboard() {
                                 {post.imageUrl && (
                                     <div className="h-48 w-full relative">
                                         <Image
-                                            src={post.imageUrl}
-                                            alt={post.title}
+                                            src="/post-back/ae8ad61a-9f01-42b1-a9ee-67a2c9ca8ccf.png"
+                                            alt={post.imageUrl}
                                             fill
                                             style={{ objectFit: 'cover' }}
                                         />
@@ -284,7 +283,7 @@ export default function AdminDashboard() {
                                     <div className="mt-4 flex flex-wrap gap-2">
                                         <button 
                                             onClick={() => handleViewDetails(post)}
-                                            className="text-blue-500 hover:text-blue-700 transition duration-300 ease-in-out"
+                                            className="bg-blue-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-blue-600"
                                         >
                                             Подробнее
                                         </button>
@@ -294,14 +293,14 @@ export default function AdminDashboard() {
                                                 <button
                                                     onClick={() => handlePublish(post._id)}
                                                     disabled={statusUpdateLoading}
-                                                    className="ml-2 text-green-500 hover:text-green-700 transition duration-300 ease-in-out"
+                                                    className="  bg-green-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-green-600"
                                                 >
                                                     Опубликовать
                                                 </button>
                                                 <button
                                                     onClick={() => handleRejectClick(post)}
                                                     disabled={statusUpdateLoading}
-                                                    className="ml-2 text-red-500 hover:text-red-700 transition duration-300 ease-in-out"
+                                                    className=" bg-red-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-red-600"
                                                 >
                                                     Отклонить
                                                 </button>
