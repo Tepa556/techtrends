@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Modal, Box, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Modal, Box, TextField, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
-import { categories } from '../lib/nav-categories';
 import CloseIcon from '@mui/icons-material/Close';
 
-interface CreatePostModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onPostCreated?: (newPost: any) => void;
+interface Post {
+    _id: string;
+    title: string;
+    description: string;
+    category: string;
+    text: string;
+    imageUrl: string | null;
+    author: string;
+    likeCount: number;
+    comments: any[];
+    createdAt: string;
 }
 
-const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-};
+interface EditPostModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    post: Post | null;
+    onPostUpdated?: (updatedPost: Post) => void;
+}
 
-export default function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
+export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: EditPostModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
@@ -31,70 +33,83 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Функция для преобразования файла в Base64
+    // Инициализация данных при открытии модального окна
+    useEffect(() => {
+        if (isOpen && post) {
+            setTitle(post.title);
+            setDescription(post.description);
+            setCategory(post.category);
+            setText(post.text);
+            setImagePreview(post.imageUrl);
+        }
+    }, [isOpen, post]);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 2 * 1024 * 1024) {
+                setMessage('Размер файла не должен превышать 2MB');
+                return;
+            }
+
+            setImage(file);
+            
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
-            reader.readAsDataURL(file); // Преобразует файл в Base64
+            reader.readAsDataURL(file);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
-        const token = Cookies.get('token');
+        if (!post) return;
 
-        const postData = {
-            title,
-            description,
-            category,
-            text,
-            image: imagePreview, // Передаем изображение как строку Base64
-        };
+        if (!title || !description || !category || !text) {
+            setMessage('Все поля обязательны для заполнения');
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage(null);
 
         try {
-            const response = await fetch('/api/post/create', {
-                method: 'POST',
+            const token = Cookies.get('token');
+            const response = await fetch('/api/post/update', {
+                method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(postData),
+                body: JSON.stringify({
+                    postId: post._id,
+                    title,
+                    description,
+                    category,
+                    text,
+                    image: imagePreview,
+                }),
             });
 
             const data = await response.json();
-
+            
             if (response.ok) {
-                setMessage('Пост создан успешно');
-                
-                // Очищаем поля формы
-                setTitle('');
-                setDescription('');
-                setCategory('');
-                setText('');
-                setImage(null);
-                setImagePreview(null);
-                
-                // Закрываем модальное окно
-                onClose();
-                
-                // Вызываем коллбэк с новым постом
-                if (onPostCreated && data.post) {
-                    onPostCreated(data.post);
-                }
+                setMessage('Пост успешно обновлен');
+                setTimeout(() => {
+                    setMessage(null);
+                    onClose();
+                    
+                    // Вместо перезагрузки вызываем коллбэк
+                    if (onPostUpdated && data.post) {
+                        onPostUpdated(data.post);
+                    }
+                }, 1500);
             } else {
-                throw new Error(data.error || 'Ошибка при создании поста');
+                setMessage(data.error || 'Ошибка при обновлении поста');
             }
         } catch (error) {
-            if (error instanceof Error) {
-                setMessage(error.message);
-            } else {
-                setMessage('Произошла неизвестная ошибка');
-            }
+            setMessage('Произошла ошибка при обращении к серверу');
         } finally {
             setIsLoading(false);
         }
@@ -118,7 +133,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                 }}
             >
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-bold text-lg">Создать пост</h2>
+                    <h2 className="font-bold text-lg">Редактировать пост</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -126,6 +141,12 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                         <CloseIcon />
                     </button>
                 </div>
+                
+                {message && (
+                    <div className={`p-3 mb-4 rounded ${message.includes('ошибка') || message.includes('Ошибка') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                        {message}
+                    </div>
+                )}
                 
                 {isLoading ? (
                     <div className="flex justify-center my-4">
@@ -204,21 +225,20 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3"
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3"
                             >
                                 Отмена
                             </button>
                             <button
                                 type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200"
                                 disabled={isLoading}
                             >
-                                Создать пост
+                                Сохранить
                             </button>
                         </div>
                     </form>
                 )}
-                {message && <p className="text-red-500 font-bold mt-3">{message}</p>}
             </Box>
         </Modal>
     );

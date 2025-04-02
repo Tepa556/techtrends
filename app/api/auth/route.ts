@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Создание токена
-        const token = jwt.sign({ email }, jwtSecret, { expiresIn: '1h' });
+        const token = jwt.sign({ email }, jwtSecret, { expiresIn: '3h' });
 
         return NextResponse.json({ message: 'Авторизация успешна', token }, { status: 200 });
     } catch (error) {

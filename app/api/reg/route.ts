@@ -44,7 +44,7 @@
             await usersCollection.insertOne(newUser);
 
             // Создание токена
-            const token = jwt.sign({ email }, jwtSecret, { expiresIn: '1h' });
+            const token = jwt.sign({ email }, jwtSecret, { expiresIn: '3h' });
 
             return NextResponse.json({ message: 'Регистрация успешна', token }, { status: 201 });
         } catch (error) {

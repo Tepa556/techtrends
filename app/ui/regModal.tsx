@@ -18,8 +18,9 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUsername] = useState('');
     const [formError, setFormError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             setFormError('Пароли не совпадают');
@@ -29,7 +30,13 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
             setFormError('Все поля обязательны для заполнения');
             return;
         }
-        onRegister(username, email, password);
+        
+        setIsLoading(true);
+        try {
+            await onRegister(username, email, password);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -38,67 +45,81 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                 <p className='font-bold'>Регистрация</p>
                 <button
                     onClick={onClose}
-                    className="absolute right-6 top-3"
+                    className="absolute right-6 top-3 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                     <CloseIcon className='cursor-pointer' />
                 </button>
             </DialogTitle>
             <DialogContent>
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                    <TextField
-                        label="Имя пользователя"
-                        variant="outlined"
-                        fullWidth
-                        required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        margin="normal"
-                    />
-                    <TextField
-                        label="Электронная почта"
-                        variant="outlined"
-                        type="email"
-                        fullWidth
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        margin="normal"
-                    />
-                    <TextField
-                        label="Пароль"
-                        variant="outlined"
-                        type="password"
-                        fullWidth
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        margin="normal"
-                    />
-                    <TextField
-                        label="Подтвердите пароль"
-                        variant="outlined"
-                        type="password"
-                        fullWidth
-                        required
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        margin="normal"
-                    />
-                    {formError && <p className="text-red-500">{formError}</p>}
-                    {error && <p className="text-red-500">{error}</p>}
-                </form>
+                {isLoading ? (
+                    <div className="flex justify-center my-4">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : (
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        <TextField
+                            label="Имя пользователя"
+                            variant="outlined"
+                            fullWidth
+                            required
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Электронная почта"
+                            variant="outlined"
+                            type="email"
+                            fullWidth
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Пароль"
+                            variant="outlined"
+                            type="password"
+                            fullWidth
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Подтвердите пароль"
+                            variant="outlined"
+                            type="password"
+                            fullWidth
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            margin="normal"
+                        />
+                        {formError && <p className="text-red-500">{formError}</p>}
+                        {error && <p className="text-red-500">{error}</p>}
+                    </form>
+                )}
             </DialogContent>
-            <div className="flex justify-center">
+            <div className="flex justify-center px-6 pb-6">
                 <button
                     onClick={handleSubmit} 
-                    className="w-45 bg-blue-500 text-white font-bold transition duration-300 ease-in-out hover:bg-blue-600 rounded-md py-2"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200"
+                    disabled={isLoading}
                 >
-                    Зарегистрироваться
+                    {isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
                 </button>
             </div>
-            <div className="mt-4 text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Уже есть аккаунт? <Button onClick={onOpenLogin} className="text-primary hover:underline">Войти</Button>
+            <div className="px-6 pb-6 text-center">
+                <p className="text-sm text-gray-600">
+                    Уже есть аккаунт? 
+                    <button 
+                        onClick={onOpenLogin} 
+                        className="ml-2 text-blue-500 hover:text-blue-700 font-medium transition-colors" 
+                        disabled={isLoading}
+                    >
+                        Войти
+                    </button>
                 </p>
             </div>
         </Dialog>
