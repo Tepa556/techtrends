@@ -47,7 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
         // Обновляем статус поста и добавляем причину отклонения
         await postsCollection.updateOne(
             { _id: new ObjectId(postId) },
-            { $set: { status: 'Отклонен', rejectionReason: reason } } // Обновляем статус и добавляем причину
+            { $set: { status: 'Отклонен' } } // Обновляем статус и добавляем причину
         );
 
         // Добавляем уведомление автору поста в коллекцию пользователей
@@ -57,7 +57,7 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
                 $push: { 
                     notifications: { 
                         message: `Ваш пост "${existingPost.title}" был отклонен. Причина: ${reason}`, 
-                        createdAt: new Date().toISOString() 
+                        createdAt: new Date().toISOString()
                     } 
                 } 
             } 

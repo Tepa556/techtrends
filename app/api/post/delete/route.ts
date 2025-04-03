@@ -36,17 +36,22 @@ export async function DELETE(req: NextRequest) {
         await client.connect();
         const database = client.db('local');
         const postsCollection = database.collection('posts');
-        const notificationsCollection = database.collection('notifications');
+        const usersCollection = database.collection('users');
 
-        // Проверяем, существует ли пост и принадлежит ли он текущему пользователю
+        // Находим пользователя по email и получаем его username
+        const user = await usersCollection.findOne({ email: currentUserEmail });
+        if (!user) {
+            return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+        }
+
+        // Ищем пост по ID и username автора
         const post = await postsCollection.findOne({ 
             _id: new ObjectId(postId),
-            author: currentUserEmail 
+            author: user.username // Используем username для проверки авторства
         });
 
         if (!post) {
-            await client.close();
-            return NextResponse.json({ error: 'Пост не найден или у вас нет прав для его удаления' }, { status: 404 });
+            return NextResponse.json({ error: 'Пост не найден или у вас нет прав на его удаление' }, { status: 404 });
         }
 
         // Удаляем изображение поста, если оно существует
@@ -69,11 +74,8 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ error: 'Не удалось удалить пост' }, { status: 500 });
         }
 
-        // Удаляем все уведомления, связанные с этим постом
-        await notificationsCollection.deleteMany({ postId: postId });
-
         await client.close();
-        return NextResponse.json({ message: 'Пост успешно удален' });
+        return NextResponse.json({ message: 'Пост успешно удален' }, { status: 200 });
     } catch (error) {
         console.error('Ошибка при удалении поста:', error);
         return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

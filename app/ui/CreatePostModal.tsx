@@ -53,7 +53,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
             description,
             category,
             text,
-            image: imagePreview, // Передаем изображение как строку Base64
+            image: imagePreview,
         };
 
         try {
@@ -70,7 +70,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
 
             if (response.ok) {
                 setMessage('Пост создан успешно');
-                
+
                 // Очищаем поля формы
                 setTitle('');
                 setDescription('');
@@ -78,10 +78,10 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                 setText('');
                 setImage(null);
                 setImagePreview(null);
-                
+
                 // Закрываем модальное окно
                 onClose();
-                
+
                 // Вызываем коллбэк с новым постом
                 if (onPostCreated && data.post) {
                     onPostCreated(data.post);
@@ -126,7 +126,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                         <CloseIcon />
                     </button>
                 </div>
-                
+
                 {isLoading ? (
                     <div className="flex justify-center my-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -149,18 +149,21 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                             onChange={(e) => setDescription(e.target.value)}
                             required
                         />
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Категория</InputLabel>
+                        <FormControl fullWidth>
+                            <InputLabel id="category-select-label">Категория</InputLabel>
                             <Select
+                                labelId="category-select-label"
+                                id="category-select"
                                 value={category}
+                                label="Категория"
                                 onChange={(e) => setCategory(e.target.value)}
                                 required
                             >
-                                <MenuItem value="Технологии">Технологии</MenuItem>
-                                <MenuItem value="Наука">Наука</MenuItem>
-                                <MenuItem value="Разработка">Разработка</MenuItem>
-                                <MenuItem value="Дизайн">Дизайн</MenuItem>
-                                <MenuItem value="Бизнес">Бизнес</MenuItem>
+                                {categories.map((cat) => (
+                                    <MenuItem key={cat.name} value={cat.name}>
+                                        {cat.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                         <TextField
@@ -175,19 +178,18 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                         />
                         <div className="mt-4">
                             <label
-                                className={`flex items-center justify-center w-full p-3 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
-                                    imagePreview ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500'
-                                }`}
+                                className={`flex items-center justify-center w-full p-3 border-2 border-dashed rounded-md cursor-pointer transition-colors ${imagePreview ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500'
+                                    }`}
                             >
                                 <div className="flex flex-col items-center space-y-2">
                                     <span className="text-sm font-medium text-gray-700">
                                         {imagePreview ? 'Изображение выбрано' : 'Загрузить изображение'}
                                     </span>
                                     {imagePreview && (
-                                        <img 
-                                            src={imagePreview} 
-                                            alt="Preview" 
-                                            className="mt-2 max-h-40 object-contain" 
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            className="mt-2 max-h-40 object-contain"
                                         />
                                     )}
                                 </div>
@@ -199,7 +201,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
                                 />
                             </label>
                         </div>
-                        
+
                         <div className="flex justify-end mt-6">
                             <button
                                 type="button"

@@ -25,9 +25,18 @@ export async function GET(req: NextRequest) {
         const client = new MongoClient(uri);
         await client.connect();
         const database = client.db('local');
+        const usersCollection = database.collection('users');
         const postsCollection = database.collection('posts');
 
-        const userPosts = await postsCollection.find({ author: currentUserEmail }).toArray();
+        // Находим пользователя по email, чтобы получить username
+        const user = await usersCollection.findOne({ email: currentUserEmail });
+        if (!user) {
+            await client.close();
+            return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+        }
+
+        // Ищем посты по username пользователя
+        const userPosts = await postsCollection.find({ author: user.username }).toArray();
         await client.close();
 
         return NextResponse.json(userPosts, { status: 200 });

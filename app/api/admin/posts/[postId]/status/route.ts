@@ -5,7 +5,10 @@ import jwt from 'jsonwebtoken';
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
 
-export async function PUT(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function PUT(
+  req: NextRequest, 
+  { params }: { params: { postId: string } }
+) {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
         return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });

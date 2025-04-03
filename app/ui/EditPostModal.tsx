@@ -1,7 +1,10 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Modal, Box, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Cookies from 'js-cookie';
 import CloseIcon from '@mui/icons-material/Close';
+import { categories } from '@/app/lib/nav-categories';
 
 interface Post {
     _id: string;
@@ -172,18 +175,21 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                             onChange={(e) => setDescription(e.target.value)}
                             required
                         />
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Категория</InputLabel>
+                        <FormControl fullWidth>
+                            <InputLabel id="category-select-label">Категория</InputLabel>
                             <Select
+                                labelId="category-select-label"
+                                id="category-select"
                                 value={category}
+                                label="Категория"
                                 onChange={(e) => setCategory(e.target.value)}
                                 required
                             >
-                                <MenuItem value="Технологии">Технологии</MenuItem>
-                                <MenuItem value="Наука">Наука</MenuItem>
-                                <MenuItem value="Разработка">Разработка</MenuItem>
-                                <MenuItem value="Дизайн">Дизайн</MenuItem>
-                                <MenuItem value="Бизнес">Бизнес</MenuItem>
+                                {categories.map((cat) => (
+                                    <MenuItem key={cat.name} value={cat.name}>
+                                        {cat.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                         <TextField

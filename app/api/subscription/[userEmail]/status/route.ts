@@ -4,42 +4,52 @@ import jwt from 'jsonwebtoken';
 
 const uri = `${process.env.MONGODB_URL}`;
 
-export async function GET(request: NextRequest, { params }: { params: { userEmail: string } }) {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
-        return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    let currentUserEmail;
-
+export async function GET(
+    req: NextRequest,
+    { params }: { params: { userEmail: string } }
+) {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
-        currentUserEmail = decoded.email; // Получаем email текущего пользователя
-    } catch (error) {
-        return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
-    }
-
-    const client = new MongoClient(uri);
-    try {
+        // Извлекаем токен из заголовка Authorization
+        const authHeader = req.headers.get('authorization');
+        
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return NextResponse.json({ error: 'Токен авторизации не предоставлен' }, { status: 401 });
+        }
+        
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { email: string };
+        
+        // Подключение к MongoDB
+        const client = new MongoClient(uri);
         await client.connect();
-        const database = client.db('local'); // Укажите имя вашей базы данных
+        const database = client.db('local');
         const usersCollection = database.collection('users');
 
+        // Получаем userEmail из параметров (с await)
+        const userEmail = await params.userEmail;
+
         // Находим пользователя по email
-        const user = await usersCollection.findOne({ email: params.userEmail });
+        const user = await usersCollection.findOne({ email: userEmail });
 
         if (!user) {
             return NextResponse.json({ isSubscribed: false }, { status: 200 });
         }
 
-        // Проверяем, подписан ли текущий пользователь
-        const isSubscribed = user.subscribers.includes(currentUserEmail);
-        return NextResponse.json({ isSubscribed });
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: 'Ошибка при проверке подписки' }, { status: 500 });
-    } finally {
+        // Находим текущего пользователя
+        const currentUser = await usersCollection.findOne({ email: decoded.email });
+
+        if (!currentUser) {
+            return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+        }
+
+        // Проверяем, подписан ли текущий пользователь на указанного пользователя
+        const isSubscribed = currentUser.subscriptions && currentUser.subscriptions.includes(userEmail);
+
         await client.close();
+
+        return NextResponse.json({ isSubscribed }, { status: 200 });
+    } catch (error) {
+        console.error('Ошибка при проверке статуса подписки:', error);
+        return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
     }
 } 

@@ -35,8 +35,6 @@ const isPublicPath = (path: string) => {
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
     
-    console.log("Обрабатывается путь:", path);
-    
     // Пропускаем запросы к статическим файлам
     if (path.startsWith('/post-back')|| path.startsWith('/user-avatar') || path.startsWith('/api')) {
         return NextResponse.next();
@@ -44,52 +42,37 @@ export async function middleware(request: NextRequest) {
     
     // 1. Обработка путей администратора
     if (path.startsWith('/admin')) {
-        console.log("Обнаружен путь админа:", path);
-        
         // Для страницы входа админа просто пропускаем проверку
         if (path === ADMIN_LOGIN_PATH) {
-            console.log("Пропускаем страницу логина админа");
             return NextResponse.next();
         }
         
         // Проверяем, входит ли путь в список админских путей, требующих проверки
         const requiresAdminCheck = ADMIN_PATHS.some(adminPath => path.startsWith(adminPath));
         if (requiresAdminCheck) {
-            console.log("Путь требует проверки прав администратора");
-            
             // Проверяем только наличие токена админа без проверки JWT
             const adminToken = request.cookies.get('admin_token')?.value;
-            console.log("Токен админа:", adminToken ? "Присутствует" : "Отсутствует");
             
             if (!adminToken) {
-                console.log("Перенаправление на страницу логина админа (токен отсутствует)");
                 return NextResponse.redirect(new URL(ADMIN_LOGIN_PATH, request.url));
             }
             
             // Токен есть - пропускаем пользователя без дополнительных проверок
-            console.log("Токен админа найден, пропускаем запрос");
         }
     } 
     // 2. Проверяем, является ли путь публичным
     else if (!isPublicPath(path)) {
-        console.log("Путь требует аутентификации пользователя:", path);
-        
         // Если путь не публичный и не админский, то проверяем наличие токена пользователя
         const userToken = request.cookies.get('token')?.value;
-        console.log("Токен пользователя:", userToken ? "Присутствует" : "Отсутствует");
         
         if (!userToken) {
-            console.log("Перенаправление на главную (токен отсутствует)");
             return NextResponse.redirect(new URL(HOME_PATH, request.url));
         }
         
         // Проверяем валидность токена
 
-    } else {
-        console.log("Публичный путь, пропускаем без проверки");
     }
     
-    console.log("Пропускаем запрос дальше");
     return NextResponse.next();
 }
 

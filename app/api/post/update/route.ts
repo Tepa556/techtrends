@@ -36,16 +36,26 @@ export async function PUT(req: NextRequest) {
         await client.connect();
         const database = client.db('local');
         const postsCollection = database.collection('posts');
+        const usersCollection = database.collection('users');
 
-        const existingPost = await postsCollection.findOne({ _id: new ObjectId(postId) });
+        // Находим пользователя по email и получаем его username
+        const user = await usersCollection.findOne({ email: currentUserEmail });
+        if (!user) {
+            return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+        }
 
-        if (!existingPost) {
-            await client.close();
-            return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+        // Проверяем, принадлежит ли пост текущему пользователю
+        const post = await postsCollection.findOne({ 
+            _id: new ObjectId(postId),
+            author: user.username // Используем username для проверки авторства
+        });
+
+        if (!post) {
+            return NextResponse.json({ error: 'Пост не найден или у вас нет прав на его редактирование' }, { status: 404 });
         }
 
         // Проверяем, был ли пост отклонен
-        if (existingPost.status === 'Отклонен') {
+        if (post.status === 'Отклонен') {
             // Изменяем статус на "В рассмотрении"
             await postsCollection.updateOne(
                 { _id: new ObjectId(postId) },
@@ -54,9 +64,9 @@ export async function PUT(req: NextRequest) {
         }
 
         // Обрабатываем новое изображение, если оно было предоставлено
-        let imageUrl = existingPost.imageUrl;
+        let imageUrl = post.imageUrl;
 
-        if (image && image !== existingPost.imageUrl) {
+        if (image && image !== post.imageUrl) {
             // Если это base64 строка, значит это новое изображение
             if (image.startsWith('data:')) {
                 const matches = image.match(/^data:(image\/\w+);base64,(.+)$/);
@@ -82,8 +92,8 @@ export async function PUT(req: NextRequest) {
                 await fs.mkdir(UPLOAD_DIR, { recursive: true });
 
                 // Удаляем старое изображение, если оно существует
-                if (existingPost.imageUrl) {
-                    const oldImagePath = path.join(process.cwd(), 'public', existingPost.imageUrl);
+                if (post.imageUrl) {
+                    const oldImagePath = path.join(process.cwd(), 'public', post.imageUrl);
                     try {
                         await fs.access(oldImagePath); // Проверяем, существует ли файл
                         await fs.unlink(oldImagePath); // Удаляем файл
@@ -109,7 +119,7 @@ export async function PUT(req: NextRequest) {
         );
 
         await client.close();
-        return NextResponse.json({ message: 'Пост успешно обновлен', post: { ...existingPost, title, description, category, text, imageUrl } }, { status: 200 });
+        return NextResponse.json({ message: 'Пост успешно обновлен', post: { ...post, title, description, category, text, imageUrl } }, { status: 200 });
     } catch (error) {
         console.error('Ошибка при обновлении поста:', error);
         return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

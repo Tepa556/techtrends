@@ -1,23 +1,72 @@
 "use client"
 
-import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { posts } from '@/app/lib/posts';
 
 interface SearchDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
+interface Post {
+    _id: string;
+    title: string;
+    description: string;
+    category: string;
+    imageUrl: string;
+    author: string;
+    likeCount: number;
+    comments: any[];
+    status: string;
+    createdAt: string;
+}
+
 export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [results, setResults] = useState<any[]>([]); // Массив для хранения результатов поиска
-    const [error, setError] = useState(''); // Строка для хранения ошибки
+    const [results, setResults] = useState<Post[]>([]);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    // Загрузка постов при открытии модального окна
+    useEffect(() => {
+        const fetchPosts = async () => {
+            if (!isOpen) return;
+            
+            try {
+                setIsLoading(true);
+                const response = await fetch('/api/posts');
+                
+                if (!response.ok) {
+                    throw new Error('Не удалось загрузить посты');
+                }
+                
+                const data = await response.json();
+                // Проверяем структуру данных
+                const postsArray = Array.isArray(data) ? data : (data.posts || []);
+                const publishedPosts = postsArray.filter((post: Post) => post.status === 'Опубликован');
+                setPosts(publishedPosts);
+            } catch (err) {
+                console.error('Ошибка при загрузке постов:', err);
+                setError('Произошла ошибка при загрузке постов. Попробуйте позже.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchPosts();
+    }, [isOpen]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchTerm(value);
+
+        if (!value.trim()) {
+            setResults([]);
+            setError('');
+            return;
+        }
 
         // Фильтрация результатов
         const filteredResults = posts.filter(post =>
@@ -51,7 +100,6 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                         </button>
                     </div>
                 </div>
-
             </DialogTitle>
             <DialogContent>
                 <form className="relative mt-3">
@@ -65,18 +113,22 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 </form>
                 <div className="mt-4 max-h-[60vh] overflow-y-auto">
                     <div className="space-y-3">
-                        {error ? (
+                        {isLoading ? (
+                            <div className="flex justify-center py-4">
+                                <div className="animate-pulse bg-gray-300 h-48 w-full rounded"></div>
+                            </div>
+                        ) : error ? (
                             <p className="text-sm text-red-500">{error}</p>
                         ) : (
-                            results.map((result, index) => (
-                                <div key={index} className="flex items-start p-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                            results.map((result) => (
+                                <div key={result._id} className="flex items-start p-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
                                     <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 mr-3">
-                                        <img src="6173700c-b150-4d2d-94a7-a69aeea152eb" alt={result.title} className="w-full h-full object-cover" />
+                                        <img src={result.imageUrl || "/placeholder-image.jpg"} alt={result.title} className="w-full h-full object-cover" />
                                     </div>
                                     <div>
                                         <h4 className="font-medium line-clamp-1">{result.title}</h4>
                                         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">{result.description}</p>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{result.category} • {result.readingTime}</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{result.category}</div>
                                     </div>
                                 </div>
                             ))

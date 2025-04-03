@@ -76,27 +76,32 @@ export async function POST(req: NextRequest) {
         const postsCollection = database.collection('posts');
         const usersCollection = database.collection('users');
 
+        // Находим пользователя по email и получаем его username
+        const user = await usersCollection.findOne({ email: currentUserEmail });
+        if (!user) {
+            return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+        }
+
         const newPost = {
             title,
             description,
             category,
             text,
             imageUrl,
-            author: currentUserEmail,
+            author: user.username,
             likeCount: 0,
             comments: [],
-            status:"На рассмотрении",
+            status: "На рассмотрении",
             createdAt: new Date().toISOString(),
         };
 
         await postsCollection.insertOne(newPost);
 
         // Получаем подписчиков текущего пользователя
-        const user = await usersCollection.findOne({ email: currentUserEmail });
         if (user?.subscribers && user.subscribers.length > 0) {
             await usersCollection.updateMany(
                 { email: { $in: user.subscribers } },
-                { $push: { notifications: { message: `Новый пост от ${user.username}: "${title}"`, createdAt: new Date().toISOString()} } }
+                { $push: { notifications: { message: `Новый пост от ${user.username}: "${title}"`, createdAt: new Date().toISOString() } } }
             );
         }
 

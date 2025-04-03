@@ -12,7 +12,7 @@ const SubscribeSection = () => {
     };
 
     return (
-        <section className="py-16 md:py-24 h-[600px] flex items-center justify-center relative overflow-hidden">
+        <section className="py-16 md:py-24 h-[600px] bg-gray-100 flex items-center justify-center relative overflow-hidden">
             <div className="container mx-auto px-4 relative">
                 <div className="max-w-3xl mx-auto text-center">
                     <span className="text-sm font-medium text-blue-600 uppercase tracking-wider">Оставайтесь в курсе</span>

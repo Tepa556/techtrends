@@ -96,7 +96,7 @@ export default function UserProfile() {
             setUser(userData);
 
             // Загружаем посты пользователя
-            fetchUserPosts(userData.email);
+            fetchUserPosts();
 
             // Загружаем данные о подписках пользователя
             if (userData.subscriptions && userData.subscriptions.length > 0) {
@@ -111,7 +111,7 @@ export default function UserProfile() {
     };
 
     // Получение постов пользователя
-    const fetchUserPosts = async (email: string) => {
+    const fetchUserPosts = async () => {
         try {
             const token = Cookies.get('token');
             const response = await fetch('/api/post/get', {
@@ -119,15 +119,15 @@ export default function UserProfile() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
-            if (!response.ok) {
-                throw new Error('Ошибка при загрузке постов пользователя');
+            
+            if (response.ok) {
+                const data = await response.json();
+                setUserPosts(data);
+            } else {
+                console.error('Ошибка при получении постов пользователя');
             }
-
-            const posts = await response.json();
-            setUserPosts(posts);
         } catch (error) {
-            console.error('Ошибка при загрузке постов:', error);
+            console.error('Ошибка при получении постов пользователя:', error);
         }
     };
 
@@ -272,6 +272,28 @@ export default function UserProfile() {
     const handleCloseDeletePostModal = () => {
         setIsDeletePostModalOpen(false);
         setSelectedPostId(null);
+    };
+
+    const handleDeletePost = async (postId: string) => {
+        try {
+            const token = Cookies.get('token');
+            const response = await fetch(`/api/post/delete?postId=${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            
+            if (response.ok) {
+                setUserPosts(userPosts.filter(post => post._id !== postId));
+                setIsDeletePostModalOpen(false);
+            } else {
+                const data = await response.json();
+                console.error('Ошибка при удалении поста:', data.error);
+            }
+        } catch (error) {
+            console.error('Ошибка при удалении поста:', error);
+        }
     };
 
     if (error) {
@@ -507,7 +529,7 @@ export default function UserProfile() {
                 isOpen={isDeletePostModalOpen}
                 onClose={handleCloseDeletePostModal}
                 postId={selectedPostId}
-                onPostDeleted={handlePostDeleted}
+                onPostDeleted={handleDeletePost}
             />
         </div>
     );

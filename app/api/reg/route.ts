@@ -22,9 +22,16 @@
             const database = client.db('local');
             const usersCollection = database.collection('users');
 
-            const existingUser = await usersCollection.findOne({ email });
-            if (existingUser) {
+            // Проверка уникальности email
+            const existingEmail = await usersCollection.findOne({ email });
+            if (existingEmail) {
                 return NextResponse.json({ error: 'Пользователь с таким email уже существует' }, { status: 400 });
+            }
+
+            // Проверка уникальности никнейма
+            const existingUsername = await usersCollection.findOne({ username });
+            if (existingUsername) {
+                return NextResponse.json({ error: 'Пользователь с таким никнеймом уже существует' }, { status: 400 });
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);

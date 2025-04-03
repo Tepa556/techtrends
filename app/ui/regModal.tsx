@@ -20,14 +20,27 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
     const [formError, setFormError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const validateUsername = (username: string): boolean => {
+        // Можно добавить дополнительные правила для валидации никнейма
+        return username.length >= 3 && username.length <= 20 && /^[a-zA-Z0-9_]+$/.test(username);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setFormError(null);
+        
         if (password !== confirmPassword) {
             setFormError('Пароли не совпадают');
             return;
         }
+        
         if (!email || !password || !username) {
             setFormError('Все поля обязательны для заполнения');
+            return;
+        }
+        
+        if (!validateUsername(username)) {
+            setFormError('Никнейм должен содержать от 3 до 20 символов и может включать только буквы, цифры и знак подчеркивания');
             return;
         }
         
@@ -65,6 +78,8 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             margin="normal"
+                            helperText="От 3 до 20 символов, только буквы, цифры и знак подчеркивания"
+                            error={!!formError && formError.includes('Никнейм')}
                         />
                         <TextField
                             label="Электронная почта"
