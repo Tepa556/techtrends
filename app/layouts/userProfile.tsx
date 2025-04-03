@@ -522,7 +522,7 @@ export default function UserProfile() {
                 isOpen={isEditPostModalOpen}
                 onClose={handleCloseEditPostModal}
                 post={selectedPost}
-                onPostUpdated={handlePostUpdated}
+                onPostUpdated={(updatedPost) => handlePostUpdated(updatedPost as Post)}
             />
 
             <DeletePostModal
