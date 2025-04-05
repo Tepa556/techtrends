@@ -7,7 +7,7 @@ export default function Footer() {
     return (
         <footer className=" bg-white border-t border-gray-200 transition-colors duration-300">
             <div className="container mx-auto py-12 px-4 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="md:col-span-1">
                         <a href="/" className="text-2xl font-bold tracking-tight transition-colors hover:text-blue-600">TechTrends</a>
                         <p className="mt-2 text-sm text-gray-600">Ваш источник последних технологических трендов, новостей и информации.</p>
@@ -46,16 +46,6 @@ export default function Footer() {
                             <li><a href="/terms-of-service" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Условия использования</a></li>
                             <li><a href="/writers" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Наши авторы</a></li>
                         </ul>
-                    </div>
-                    <div className="md:col-span-1">
-                        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Подписка</h3>
-                        <p className="mt-4 text-sm text-gray-600">Подпишитесь на нашу рассылку для получения последних технологических трендов и статей.</p>
-                        <form className="mt-4">
-                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                <input type="email" placeholder="Ваш email" className="flex-1 min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-primary" required />
-                                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base font-bold h-10 px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 transition-colors duration-300" type="submit">Подписаться</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
                 <div className="mt-12 pt-8 border-t border-gray-200">
