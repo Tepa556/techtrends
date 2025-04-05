@@ -3,7 +3,8 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { categories } from '@/app/lib/nav-categories';
 import SearchIcon from '@mui/icons-material/Search';
-import MoonIcon from '@mui/icons-material/Brightness2';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import AuthModal from '../ui/authModal';
 import RegModal from '../ui/regModal';
 import { Avatar } from '@mui/material';
@@ -27,6 +28,7 @@ export default function Header() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isRegModalOpen, setIsRegModalOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -37,14 +39,14 @@ export default function Header() {
         setUser(null);
         setLoading(false);
         console.log('Токен удален, пользователь разлогинен');
-        router.push('/'); // Redirect to home page
+        router.push('/');
     }, [router]);
 
     useEffect(() => {
         const token = Cookies.get('token');
         if (token) {
             const decoded: any = jwt.decode(token);
-            const currentTime = Date.now() / 1000; // Время в секундах
+            const currentTime = Date.now() / 1000;
             if (decoded.exp < currentTime) {
                 removeToken();
             } else {
@@ -80,11 +82,13 @@ export default function Header() {
     const handleOpenLogin = () => {
         setIsAuthModalOpen(true);
         setIsRegModalOpen(false);
+        setIsMobileMenuOpen(false);
     };
 
     const handleOpenRegister = () => {
         setIsRegModalOpen(true);
         setIsAuthModalOpen(false);
+        setIsMobileMenuOpen(false);
     };
 
     const handleLogin = async (email: string, password: string) => {
@@ -145,83 +149,206 @@ export default function Header() {
 
     const handleOpenSearch = () => {
         setIsSearchOpen(true);
+        setIsMobileMenuOpen(false);
     };
 
     const handleCloseSearch = () => {
         setIsSearchOpen(false);
     };
+
     const handleLogout = () => {
         removeToken();
+        setIsMobileMenuOpen(false);
     };
+
     const handleProfilesClick = () => {
         if (user) {
             window.location.href = '/profiles';
         } else {
             setIsAuthModalOpen(true);
         }
+        setIsMobileMenuOpen(false);
+    };
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white backdrop-blur-md shadow-sm">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center">
-                        <a href="/" className="text-xl font-bold tracking-tight transition-colors hover:text-blue-500">TechTrends</a>
-                    </div>
-                    <nav className="flex items-center space-x-1">
-                        <a href="/" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-primary hover:text-blue-500">Главная</a>
-                        <div className="relative group">
-                            <button className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">Категории</button>
-                            <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                                {categories.map((category: Category) => (
-                                    <a key={category.name} href={category.link} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
-                                        {category.name}
-                                    </a>
-                                ))}
-                            </div>
+            <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+                <div className="container mx-auto px-4">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <Link href="/" className="flex-shrink-0 flex items-center">
+                                <h1 className="text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600">TechTrends</h1>
+                            </Link>
                         </div>
-                        <a href="/about" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">О нас</a>
-                        <button
-                            onClick={handleProfilesClick}
-                            className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500"
-                        >
-                            Профили
-                        </button>
-                        <button
-                            onClick={handleOpenSearch}
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 w-10"
-                        >
-                            <SearchIcon className="h-5 w-5" />
-                        </button>
-                        {loading ? (
-                            <div className="flex items-center space-x-2">
-                                <div className="h-4 w-32 bg-gray-300 rounded animate-pulse"></div>
+                        
+                        {/* Desktop Navigation */}
+                        <nav className="hidden md:flex items-center space-x-1">
+                            <a href="/" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-primary hover:text-blue-500">Главная</a>
+                            <div className="relative group">
+                                <button className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">Категории</button>
+                                <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                                    {categories.map((category: Category) => (
+                                        <a key={category.name} href={category.link} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
+                                            {category.name}
+                                        </a>
+                                    ))}
+                                </div>
                             </div>
-                        ) : user ? (
-                            <div className="flex items-center space-x-2">
-                                {user.avatar && (
-                                    <Image
-                                        src={user.avatar}
-                                        alt="User Avatar"
-                                        width={32}
-                                        height={32}
-                                        className="rounded-full"
-                                    />
-                                )}
-                                <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
-                                    {user.username || user.email}
-                                </Link>
- 
-                            </div>
-                        ) : (
-                            <div className="ml-4 flex items-center space-x-2">
-                                <button onClick={handleOpenLogin} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 px-4 py-2">Войти</button>
-                                <button onClick={handleOpenRegister} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold bg-blue-500 text-white ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-blue-600 h-10 px-4 py-2">Регистрация</button>
-                            </div>
-                        )}
-                    </nav>
+                            <a href="/about" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">О нас</a>
+                            <button
+                                onClick={handleProfilesClick}
+                                className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500"
+                            >
+                                Профили
+                            </button>
+                            <button
+                                onClick={handleOpenSearch}
+                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 w-10"
+                            >
+                                <SearchIcon className="h-5 w-5" />
+                            </button>
+                            {loading ? (
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-4 w-32 bg-gray-300 rounded animate-pulse"></div>
+                                </div>
+                            ) : user ? (
+                                <div className="flex items-center space-x-2">
+                                    {user.avatar && (
+                                        <Image
+                                            src={user.avatar}
+                                            alt="User Avatar"
+                                            width={32}
+                                            height={32}
+                                            className="rounded-full"
+                                        />
+                                    )}
+                                    <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
+                                        {user.username || user.email}
+                                    </Link>
+                                    <button 
+                                        onClick={handleLogout} 
+                                        className="text-sm text-red-500 hover:text-red-700"
+                                    >
+                                        Выйти
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="ml-4 flex items-center space-x-2">
+                                    <button onClick={handleOpenLogin} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 px-4 py-2">Войти</button>
+                                    <button onClick={handleOpenRegister} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold bg-blue-500 text-white ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-blue-600 h-10 px-4 py-2">Регистрация</button>
+                                </div>
+                            )}
+                        </nav>
+
+                        {/* Mobile Navigation Icons */}
+                        <div className="flex items-center space-x-4 md:hidden">
+                            <button 
+                                className="p-1 rounded-full text-gray-600 hover:text-blue-600 transition-colors focus:outline-none" 
+                                onClick={handleOpenSearch}
+                            >
+                                <SearchIcon />
+                            </button>
+                            <button 
+                                className="p-1 rounded-full text-gray-600 hover:text-blue-600 transition-colors focus:outline-none" 
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            >
+                                {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Mobile Menu */}
+                {isMobileMenuOpen && (
+                    <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+                        <div className="px-2 pt-2 pb-4 space-y-1">
+                            <a href="/" className="block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors">Главная</a>
+                            
+                            {/* Mobile Categories Dropdown */}
+                            <div className="relative">
+                                <button 
+                                    onClick={() => document.getElementById('mobile-categories')?.classList.toggle('hidden')}
+                                    className="w-full text-left block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors"
+                                >
+                                    Категории
+                                </button>
+                                <div id="mobile-categories" className="hidden pl-4">
+                                    {categories.map((category: Category) => (
+                                        <a 
+                                            key={category.name} 
+                                            href={category.link} 
+                                            className="block px-3 py-2 rounded-md text-sm font-bold hover:text-blue-600 transition-colors"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            {category.name}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <a href="/about" className="block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors">О нас</a>
+                            <button
+                                onClick={handleProfilesClick}
+                                className="w-full text-left block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors"
+                            >
+                                Профили
+                            </button>
+                            
+                            {user ? (
+                                <div className="border-t border-gray-200 pt-2">
+                                    <div className="px-3 py-2 flex items-center">
+                                        {user.avatar && (
+                                            <Image
+                                                src={user.avatar}
+                                                alt="User Avatar"
+                                                width={32}
+                                                height={32}
+                                                className="rounded-full mr-2"
+                                            />
+                                        )}
+                                        <Link 
+                                            href={`/profile`} 
+                                            className="text-base font-bold hover:text-blue-600 transition-colors"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            {user.username || user.email}
+                                        </Link>
+                                    </div>
+                                    <button 
+                                        onClick={handleLogout} 
+                                        className="w-full text-left block px-3 py-3 rounded-md text-base font-bold text-red-500 hover:text-red-700 transition-colors"
+                                    >
+                                        Выйти
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="border-t border-gray-200 pt-2 flex flex-col items-center space-y-2 p-3">
+                                    <button 
+                                        onClick={handleOpenLogin} 
+                                        className="w-96 py-2 px-4 rounded-md text-center text-base font-bold border border-gray-300 hover:bg-gray-100 transition-colors"
+                                    >
+                                        Войти
+                                    </button>
+                                    <button 
+                                        onClick={handleOpenRegister} 
+                                        className="w-96 py-2 px-4 rounded-md text-center text-base font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                    >
+                                        Регистрация
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </header>
+            
+            {/* Отступ для содержимого страницы под фиксированным header */}
+            <div className="pt-16"></div>
+            
             <AuthModal
                 isOpen={isAuthModalOpen}
                 onClose={() => setIsAuthModalOpen(false)}
