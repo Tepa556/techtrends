@@ -5,7 +5,10 @@ import jwt from 'jsonwebtoken';
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
 
-export async function PUT(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ postId: string }> }
+) {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
         return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
@@ -21,8 +24,9 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
         return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
     }
 
-    const { postId } = params;
-    const { reason } = await req.json(); // Получаем причину отклонения
+    const params = await context.params;
+    const postId = params.postId;
+    const { reason } = await req.json();
 
     if (!reason) {
         return NextResponse.json({ error: 'Причина отклонения не указана' }, { status: 400 });
@@ -33,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
         await client.connect();
         const database = client.db('local');
         const postsCollection = database.collection('posts');
-        const usersCollection = database.collection('users'); // Коллекция пользователей
+        const usersCollection = database.collection('users');
 
         const existingPost = await postsCollection.findOne({ 
             _id: new ObjectId(postId) 
@@ -44,15 +48,13 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
             return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
         }
 
-        // Обновляем статус поста и добавляем причину отклонения
         await postsCollection.updateOne(
             { _id: new ObjectId(postId) },
-            { $set: { status: 'Отклонен' } } // Обновляем статус и добавляем причину
+            { $set: { status: 'Отклонен' } }
         );
 
-        // Добавляем уведомление автору поста в коллекцию пользователей
         await usersCollection.updateOne(
-            { email: existingPost.author }, // Находим пользователя по email
+            { email: existingPost.author },
             { 
                 $push: { 
                     notifications: { 
