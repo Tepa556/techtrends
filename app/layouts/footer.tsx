@@ -2,6 +2,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import MailIcon from '@mui/icons-material/Mail';
+import TelegramIcon from '@mui/icons-material/Telegram'; // Импортируем иконку Telegram
 
 export default function Footer() {
     return (
@@ -12,39 +13,27 @@ export default function Footer() {
                         <a href="/" className="text-2xl font-bold tracking-tight transition-colors hover:text-blue-600">TechTrends</a>
                         <p className="mt-2 text-sm text-gray-600">Ваш источник последних технологических трендов, новостей и информации.</p>
                         <div className="mt-4 flex space-x-4">
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="GitHub">
-                                <GitHubIcon />
-                            </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="Twitter">
-                                <TwitterIcon />
-                            </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="LinkedIn">
-                                <LinkedInIcon />
-                            </a>
-                            <a href="mailto:contact@techtrends.com" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="Email">
-                                <MailIcon />
+                            <a href="https://t.me/techtrends_channel" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                                <TelegramIcon /> {/* Иконка Telegram вместо текста */}
                             </a>
                         </div>
                     </div>
                     <div className="md:col-span-1">
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Категории</h3>
                         <ul className="mt-4 space-y-2">
-                            <li><a href="/category/веб-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Веб-разработка</a></li>
-                            <li><a href="/category/мобильная-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Мобильная разработка</a></li>
-                            <li><a href="/category/искусственный-интеллект" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Искусственный интеллект</a></li>
-                            <li><a href="/category/большие-данные" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Большие данные</a></li>
-                            <li><a href="/category/облачные-технологии" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Облачные технологии</a></li>
-                            <li><a href="/category/кибербезопасность" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Кибербезопасность</a></li>
+                            <li><a href="/category/Веб-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Веб-разработка</a></li>
+                            <li><a href="/category/Мобильная-разработка" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Мобильная разработка</a></li>
+                            <li><a href="/category/Искусственный-интеллект" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Искусственный интеллект</a></li>
+                            <li><a href="/category/Облачные-технологии" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Облачные технологии</a></li>
+                            <li><a href="/category/Кибербезопасность" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Кибербезопасность</a></li>
                         </ul>
                     </div>
                     <div className="md:col-span-1">
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Быстрые ссылки</h3>
                         <ul className="mt-4 space-y-2">
                             <li><a href="/about" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">О нас</a></li>
-                            <li><a href="/contact" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Контакты</a></li>
                             <li><a href="/privacy-policy" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Политика конфиденциальности</a></li>
                             <li><a href="/terms-of-service" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Условия использования</a></li>
-                            <li><a href="/writers" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Наши авторы</a></li>
                         </ul>
                     </div>
                 </div>
