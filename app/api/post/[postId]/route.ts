@@ -5,9 +5,10 @@ const uri = `${process.env.MONGODB_URL}`;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<any> }
 ) {
-  const postId = (await params).postId;
+  const params = await context.params;
+  const postId = params.postId;
   
   if (!postId) {
     return NextResponse.json({ error: 'ID поста не указан' }, { status: 400 });

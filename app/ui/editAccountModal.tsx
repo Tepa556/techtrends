@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Modal, Box, TextField } from '@mui/material';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
+import { User } from '@/app/types/user';
 
 interface UserEditModalProps {
     isOpen: boolean;

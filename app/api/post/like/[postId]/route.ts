@@ -8,9 +8,11 @@ const jwtSecret = `${process.env.JWT_SECRET}`;
 // Добавление/удаление лайка
 export async function POST(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<any> }
 ) {
-  const postId = (await params).postId;
+  const params = await context.params;
+  const postId = params.postId;
+  
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader) {
@@ -33,7 +35,6 @@ export async function POST(
     const database = client.db('local');
     const postsCollection = database.collection('posts');
     const usersCollection = database.collection('users');
-    const likesCollection = database.collection('likes');
 
     // Находим пользователя по email
     const user = await usersCollection.findOne({ email: currentUserEmail });
@@ -49,43 +50,39 @@ export async function POST(
       return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
     }
 
+    // Инициализируем массив лайков, если его нет
+    const likes = post.likes || [];
+    const username = user.username;
+    
     // Проверяем, поставил ли пользователь уже лайк
-    const existingLike = await likesCollection.findOne({
-      postId: postId,
-      username: user.username
-    });
-
+    const userLikeIndex = likes.findIndex((like: any) => like.username === username);
     let liked = false;
-    let likeCount = post.likeCount || 0;
 
-    if (existingLike) {
+    if (userLikeIndex !== -1) {
       // Если лайк уже есть - удаляем
-      await likesCollection.deleteOne({
-        postId: postId,
-        username: user.username
-      });
-      
-      likeCount -= 1;
+      likes.splice(userLikeIndex, 1);
     } else {
       // Если лайка нет - добавляем
-      await likesCollection.insertOne({
-        postId: postId,
-        username: user.username,
+      likes.push({
+        username: username,
         createdAt: new Date().toISOString()
       });
-      
-      likeCount += 1;
       liked = true;
     }
 
-    // Обновляем количество лайков в посте
+    // Обновляем лайки и их количество в посте
     await postsCollection.updateOne(
       { _id: new ObjectId(postId) },
-      { $set: { likeCount: likeCount } }
+      { 
+        $set: { 
+          likes: likes,
+          likeCount: likes.length 
+        } 
+      }
     );
 
     await client.close();
-    return NextResponse.json({ liked, likeCount }, { status: 200 });
+    return NextResponse.json({ liked, likeCount: likes.length }, { status: 200 });
   } catch (error) {
     console.error('Ошибка при изменении лайка:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

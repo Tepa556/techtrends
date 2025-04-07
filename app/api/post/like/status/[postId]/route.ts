@@ -8,9 +8,10 @@ const jwtSecret = `${process.env.JWT_SECRET}`;
 // Проверка статуса лайка
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<any> }
 ) {
-  const postId = (await params).postId;
+  const params = await context.params;
+  const postId = params.postId;
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader) {
@@ -32,7 +33,7 @@ export async function GET(
     await client.connect();
     const database = client.db('local');
     const usersCollection = database.collection('users');
-    const likesCollection = database.collection('likes');
+    const postsCollection = database.collection('posts');
 
     // Находим пользователя по email
     const user = await usersCollection.findOne({ email: currentUserEmail });
@@ -41,14 +42,19 @@ export async function GET(
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
 
-    // Проверяем, поставил ли пользователь уже лайк
-    const existingLike = await likesCollection.findOne({
-      postId: postId,
-      username: user.username
-    });
+    // Находим пост
+    const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
+    if (!post) {
+      await client.close();
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+    }
+
+    // Проверяем, поставил ли пользователь лайк
+    const likes = post.likes || [];
+    const isLiked = likes.some((like: any) => like.username === user.username);
 
     await client.close();
-    return NextResponse.json({ isLiked: !!existingLike }, { status: 200 });
+    return NextResponse.json({ isLiked }, { status: 200 });
   } catch (error) {
     console.error('Ошибка при проверке статуса лайка:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

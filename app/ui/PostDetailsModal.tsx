@@ -2,11 +2,11 @@ import { Modal, Box } from '@mui/material';
 import Image from 'next/image';
 import CloseIcon from '@mui/icons-material/Close';
 
-// Константы для статусов постов
+
 const POST_STATUS = {
-    PENDING: 'pending',
-    PUBLISHED: 'published',
-    REJECTED: 'rejected',
+    PENDING: 'На рассмотрении',
+    PUBLISHED: 'Опубликован',
+    REJECTED: 'Отклонен',
 };
 
 interface Post {
@@ -61,7 +61,7 @@ export default function PostDetailsModal({
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center space-x-2">
                         <h2 className="text-2xl font-bold">{post.title}</h2>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                        <span className={`w-60 text-center text-xs font-semibold px-2 py-1 rounded-full ${
                             post.status === POST_STATUS.PENDING 
                                 ? 'bg-yellow-100 text-yellow-800' 
                                 : post.status === POST_STATUS.PUBLISHED 
@@ -99,7 +99,7 @@ export default function PostDetailsModal({
                 {post.imageUrl && (
                     <div className="mb-6 relative h-64 w-full">
                         <Image
-                            src={post.imageUrl}
+                            src="/post-back/eb8d9336-f308-45ef-9475-e72a41669b6b.png"
                             alt={post.title}
                             fill
                             style={{ objectFit: 'contain' }}
@@ -122,14 +122,14 @@ export default function PostDetailsModal({
                         <button
                             onClick={() => onPublish(post._id)}
                             disabled={isLoading}
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 ease-in-out disabled:opacity-50"
+                            className="px-4 py-2 font-bold bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 ease-in-out disabled:opacity-50"
                         >
                             {isLoading ? 'Обработка...' : 'Опубликовать'}
                         </button>
                         <button
                             onClick={onReject}
                             disabled={isLoading}
-                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out disabled:opacity-50"
+                            className="px-4 py-2 font-bold bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out disabled:opacity-50"
                         >
                             {isLoading ? 'Обработка...' : 'Отклонить'}
                         </button>

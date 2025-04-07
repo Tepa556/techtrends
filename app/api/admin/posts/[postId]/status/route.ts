@@ -6,9 +6,12 @@ const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
 
 export async function PUT(
-  req: NextRequest, 
-  { params }: { params: { postId: string } }
+  req: NextRequest,
+  context: { params: Promise<any> }  // Изменяем тип параметра на Promise
 ) {
+    const params = await context.params;  // Добавляем await для получения параметров
+    const postId = params.postId;  // Теперь получаем postId из разрешенного Promise
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
         return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
@@ -17,7 +20,6 @@ export async function PUT(
     const token = authHeader.split(' ')[1];
     let currentUserEmail;
 
-
     try {
         const decoded = jwt.verify(token, jwtSecret) as { email: string };
         currentUserEmail = decoded.email;
@@ -25,7 +27,6 @@ export async function PUT(
         return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
     }
 
-    const { postId } = params;
     const { status } = await req.json();
 
     if (!status) {

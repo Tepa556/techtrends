@@ -62,12 +62,17 @@ export async function PUT(req: NextRequest) {
         await client.connect();
         const database = client.db('local');
         const usersCollection = database.collection('users');
+        const postsCollection = database.collection('posts');
 
         // Проверяем существование пользователя
         const user = await usersCollection.findOne({ email: currentUserEmail });
         if (!user) {
+            await client.close();
             return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
         }
+
+        // Сохраняем старый никнейм для обновления постов
+        const oldUsername = user.username;
 
         // Подготовка данных для обновления
         const updateData: any = {
@@ -91,6 +96,14 @@ export async function PUT(req: NextRequest) {
         // Обновляем профиль пользователя
         await usersCollection.updateOne({ email: currentUserEmail }, { $set: updateData });
 
+        // Обновляем никнейм автора во всех постах пользователя
+        if (oldUsername !== username) {
+            await postsCollection.updateMany(
+                { author: oldUsername },
+                { $set: { author: username } }
+            );
+        }
+
         // Возвращаем обновленные данные пользователя
         const updatedUser = await usersCollection.findOne({ email: currentUserEmail });
         await client.close();
@@ -100,6 +113,7 @@ export async function PUT(req: NextRequest) {
         });
     } catch (error) {
         console.error('Ошибка при обновлении профиля:', error);
+        await client.close();
         return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
     }
 }

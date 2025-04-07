@@ -5,9 +5,10 @@ const uri = `${process.env.MONGODB_URL}`;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { category: string } }
+  context: { params: Promise<any> }
 ) {
-  const category = await params.category;
+  const params = await context.params;
+  const category = params.category;
   
   if (!category) {
     return NextResponse.json({ error: 'Категория не указана' }, { status: 400 });

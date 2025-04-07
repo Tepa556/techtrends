@@ -6,7 +6,7 @@ interface DeletePostModalProps {
     isOpen: boolean;
     onClose: () => void;
     postId: string | null;
-    onPostDeleted?: (deletedPostId: string) => void;
+    onPostDeleted: (postId: string) => void;
 }
 
 export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted }: DeletePostModalProps) {
@@ -21,7 +21,7 @@ export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted
         
         try {
             const token = Cookies.get('token');
-            const response = await fetch(`/api/post/delete?postId=${postId}`, {
+            const response = await fetch(`/api/post/delete/${postId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -32,13 +32,13 @@ export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted
             
             if (response.ok) {
                 setMessage('Пост успешно удален');
+                if (onPostDeleted) {
+                    onPostDeleted(postId);
+                }
                 setTimeout(() => {
                     setMessage(null);
                     onClose();
-                    if (onPostDeleted) {
-                        onPostDeleted(postId);
-                    }
-                }, 1500);
+                }, 1000);
             } else {
                 setMessage(data.error || 'Ошибка при удалении поста');
             }

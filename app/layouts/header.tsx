@@ -156,10 +156,7 @@ export default function Header() {
         setIsSearchOpen(false);
     };
 
-    const handleLogout = () => {
-        removeToken();
-        setIsMobileMenuOpen(false);
-    };
+
 
     const handleProfilesClick = () => {
         if (user) {
@@ -229,12 +226,7 @@ export default function Header() {
                                     <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
                                         {user.username || user.email}
                                     </Link>
-                                    <button 
-                                        onClick={handleLogout} 
-                                        className="text-sm text-red-500 hover:text-red-700"
-                                    >
-                                        Выйти
-                                    </button>
+
                                 </div>
                             ) : (
                                 <div className="ml-4 flex items-center space-x-2">
@@ -318,12 +310,6 @@ export default function Header() {
                                             {user.username || user.email}
                                         </Link>
                                     </div>
-                                    <button 
-                                        onClick={handleLogout} 
-                                        className="w-full text-left block px-3 py-3 rounded-md text-base font-bold text-red-500 hover:text-red-700 transition-colors"
-                                    >
-                                        Выйти
-                                    </button>
                                 </div>
                             ) : (
                                 <div className="border-t border-gray-200 pt-2 flex flex-col items-center space-y-2 p-3">

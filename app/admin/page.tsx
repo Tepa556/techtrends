@@ -32,7 +32,7 @@ export default function AdminDashboard() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState('all'); // all, pending, published, rejected
+    const [activeTab, setActiveTab] = useState('all'); 
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -255,10 +255,11 @@ export default function AdminDashboard() {
                                 {post.imageUrl && (
                                     <div className="h-48 w-full relative">
                                         <Image
-                                            src="/post-back/ae8ad61a-9f01-42b1-a9ee-67a2c9ca8ccf.png"
+                                            src={post.imageUrl}
                                             alt={post.imageUrl}
                                             fill
                                             style={{ objectFit: 'cover' }}
+                                            priority
                                         />
                                     </div>
                                 )}

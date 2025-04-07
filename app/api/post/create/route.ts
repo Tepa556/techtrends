@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         if (user?.subscribers && user.subscribers.length > 0) {
             await usersCollection.updateMany(
                 { email: { $in: user.subscribers } },
-                { $push: { notifications: { message: `Новый пост от ${user.username}: "${title}"`, createdAt: new Date().toISOString() } } }
+                { $push: { notifications: { message: `Новый пост от ${user.username}: "${title}"`, createdAt: new Date().toISOString() } }as any }
             );
         }
 

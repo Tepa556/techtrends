@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tech  Trends",
+  title: "TechTrends",
   description: "Технологические тренды",
 };
 

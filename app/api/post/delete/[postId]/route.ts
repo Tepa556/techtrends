@@ -7,7 +7,10 @@ import path from 'path';
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ postId: string }> }
+) {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
         return NextResponse.json({ error: 'Токен не предоставлен' }, { status: 401 });
@@ -23,9 +26,9 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Неверный токен' }, { status: 401 });
     }
 
-    // Получаем id поста из URL
-    const url = new URL(req.url);
-    const postId = url.searchParams.get('postId');
+    // Получаем id поста из параметров маршрута
+    const params = await context.params;
+    const postId = params.postId;
 
     if (!postId) {
         return NextResponse.json({ error: 'ID поста не указан' }, { status: 400 });
@@ -38,20 +41,19 @@ export async function DELETE(req: NextRequest) {
         const postsCollection = database.collection('posts');
         const usersCollection = database.collection('users');
 
-        // Находим пользователя по email и получаем его username
+        // Находим пользователя
         const user = await usersCollection.findOne({ email: currentUserEmail });
         if (!user) {
+            await client.close();
             return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
         }
 
-        // Ищем пост по ID и username автора
-        const post = await postsCollection.findOne({ 
-            _id: new ObjectId(postId),
-            author: user.username // Используем username для проверки авторства
-        });
-
+        // Сначала проверяем существование поста
+        const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
+        
         if (!post) {
-            return NextResponse.json({ error: 'Пост не найден или у вас нет прав на его удаление' }, { status: 404 });
+            await client.close();
+            return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
         }
 
         // Удаляем изображение поста, если оно существует

@@ -16,8 +16,14 @@ export async function GET() {
         // Fetch data from the collection
         const posts = await collection.find({}).toArray();
 
+        // Modify URLs of images - просто добавляем префикс /post-back/
+        const modifiedPosts = posts.map(post => ({
+            ...post,
+            image: post.image ? `/post-back/${post.image}` : null
+        }));
+
         // Return response using NextResponse
-        return NextResponse.json(posts);
+        return NextResponse.json(modifiedPosts);
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
         return NextResponse.json(

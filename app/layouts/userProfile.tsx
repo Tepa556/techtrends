@@ -228,7 +228,7 @@ export default function UserProfile() {
     const handleDeleteNotification = async (index: number) => {
         const token = Cookies.get('token');
         try {
-            const response = await fetch('/api/notification/delete', {
+            const response = await fetch('/api/user/notification/delete', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -276,23 +276,14 @@ export default function UserProfile() {
 
     const handleDeletePost = async (postId: string) => {
         try {
-            const token = Cookies.get('token');
-            const response = await fetch(`/api/post/delete?postId=${postId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+            // Немедленно удаляем пост из локального состояния
+            setUserPosts(userPosts.filter(post => post._id !== postId));
+            setIsDeletePostModalOpen(false);
             
-            if (response.ok) {
-                setUserPosts(userPosts.filter(post => post._id !== postId));
-                setIsDeletePostModalOpen(false);
-            } else {
-                const data = await response.json();
-                console.error('Ошибка при удалении поста:', data.error);
-            }
+            // Пост будет удален из базы данных через модальное окно DeletePostModal
+            // Обработчик уже вызван из модального окна
         } catch (error) {
-            console.error('Ошибка при удалении поста:', error);
+            console.error('Ошибка при обработке удаления поста:', error);
         }
     };
 
@@ -394,7 +385,7 @@ export default function UserProfile() {
 
             </div>
 
-            <div className="min-w-[300px] max-w-[900px] bg-gray-100 p-4 mt-4 rounded-lg shadow-lg overflow-x-auto max-h-[400px]">
+            <div className="min-w-[300px] max-w-[900px] bg-gray-100 p-4 mt-4 rounded-lg shadow-lg max-h-[400px]">
                 {activeTab === 'subscriptions' && (
                     <div>
                         <h2 className="text-xl font-bold mb-2">Подписки</h2>
@@ -432,13 +423,16 @@ export default function UserProfile() {
                     <div>
                         <h2 className="text-xl font-bold mb-2">Мои посты</h2>
                         <div className="flex flex-nowrap gap-2 justify-start">
-                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-y-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-auto items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
                                 {userPosts.length > 0 ? (
                                     userPosts.map((post) => (
                                         <div key={post._id} className="min-w-96 bg-white p-4 rounded-lg shadow-md flex items-center">
                                             <div className="mr-4">
                                                 <h3 className="font-bold">{post.title}</h3>
-                                                <p><strong>Описание:</strong> {post.description}</p>
+                                                <p><strong>Описание:</strong> {post.description.length > 100 ? 
+                                                    `${post.description.substring(0, 100)}...` : 
+                                                    post.description}
+                                                </p>
                                                 <p><strong>Категория:</strong> {post.category}</p>
                                                 <p><strong>Дата создания:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
                                                 <p><strong>Комментарии:</strong> {post.status}</p>
@@ -465,7 +459,7 @@ export default function UserProfile() {
 
                 {activeTab === 'notifications' && (
                     <div>
-                        <h2 className="text-xl font-bold mb-2">Мои посты</h2>
+                        <h2 className="text-xl font-bold mb-2">Мои уведомления</h2>
                         <div className="flex flex-nowrap gap-2 justify-start">
                             <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-x-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
                                 {user.notifications && user.notifications.length > 0 ? (

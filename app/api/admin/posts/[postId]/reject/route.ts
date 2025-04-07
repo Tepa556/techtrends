@@ -54,13 +54,13 @@ export async function PUT(
         );
 
         await usersCollection.updateOne(
-            { email: existingPost.author },
+            { username: existingPost.author },
             { 
                 $push: { 
                     notifications: { 
                         message: `Ваш пост "${existingPost.title}" был отклонен. Причина: ${reason}`, 
                         createdAt: new Date().toISOString()
-                    } 
+                    } as any
                 } 
             } 
         );

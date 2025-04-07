@@ -6,7 +6,7 @@ const uri = `${process.env.MONGODB_URL}`;
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { userEmail: string } }
+    context: { params: Promise<any> }
 ) {
     try {
         // Извлекаем токен из заголовка Authorization
@@ -26,7 +26,8 @@ export async function GET(
         const usersCollection = database.collection('users');
 
         // Получаем userEmail из параметров (с await)
-        const userEmail = await params.userEmail;
+        const params = await context.params;
+        const userEmail = params.userEmail;
 
         // Находим пользователя по email
         const user = await usersCollection.findOne({ email: userEmail });

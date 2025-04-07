@@ -8,9 +8,11 @@ const jwtSecret = `${process.env.JWT_SECRET}`;
 // Удаление комментария
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { postId: string; commentId: string } }
+  context: { params: Promise<any> }
 ) {
-  const { postId, commentId } = params;
+  const params = await context.params;
+  const postId = params.postId;
+  const commentId = params.commentId;
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader) {
@@ -64,7 +66,7 @@ export async function DELETE(
     // Удаляем комментарий
     await postsCollection.updateOne(
       { _id: new ObjectId(postId) },
-      { $pull: { comments: { _id: commentId } } }
+      { $pull: { comments: { _id: commentId } } } as any
     );
 
     await client.close();

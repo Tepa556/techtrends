@@ -7,8 +7,11 @@ const jwtSecret = `${process.env.JWT_SECRET}`;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<any> }
 ) {
+  const params = await context.params;
+  const userId = params.id;
+  
   try {
     // Проверка JWT токена
     const authHeader = req.headers.get('authorization');
