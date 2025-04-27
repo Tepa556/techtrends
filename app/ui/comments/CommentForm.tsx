@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Cookies from 'js-cookie';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 interface CommentFormProps {
   postId: string;
   onCommentAdded: (comment: any) => void;
@@ -12,7 +12,7 @@ export default function CommentForm({ postId, onCommentAdded }: CommentFormProps
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
+  const { theme } = useThemeStore();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -54,13 +54,13 @@ export default function CommentForm({ postId, onCommentAdded }: CommentFormProps
   return (
     <form onSubmit={handleSubmit} className="mb-6">
       <div className="mb-4">
-        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="comment" className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1`}>
           Ваш комментарий
         </label>
         <textarea
           id="comment"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className={`w-full px-3 py-2 border ${theme === 'dark' ? 'border-gray-700 text-white' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           placeholder="Оставьте свой комментарий..."

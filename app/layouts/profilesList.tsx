@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Cookies from 'js-cookie';
 import jwt from 'jsonwebtoken';
 import SubscribeButton from '@/app/ui/SubscribeButton';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 interface User {
     _id: string;
     username: string;
@@ -18,7 +18,7 @@ export default function ProfilesList() {
     const [error, setError] = useState<string | null>(null);
     const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
+    const { theme } = useThemeStore();
     const fetchUsers = (token: string) => {
         setIsLoading(true);
         fetch('/api/users', {
@@ -60,15 +60,15 @@ export default function ProfilesList() {
     }
 
     return (
-        <div className="container mx-auto p-4 m-20 h-96">
+        <div className="container mx-auto p-4 m-20 h-96 $">
             <div className='flex justify-center'>
-                <h1 className="text-4xl font-bold mb-4">Пользователи</h1>
+                <h1 className={`text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Пользователи</h1>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {isLoading ? (
                     // Скелетоны для загрузки
                     Array(6).fill(0).map((_, index) => (
-                        <div key={`skeleton-${index}`} className="block bg-white p-4 rounded-lg shadow-md animate-pulse">
+                        <div key={`skeleton-${index}`} className={`block ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-md animate-pulse`}>
                             <div className="flex items-center">
                                 <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
                                 <div className="h-6 bg-gray-300 rounded w-32"></div>
@@ -81,7 +81,7 @@ export default function ProfilesList() {
                 ) : (
                     // Реальные данные пользователей
                     users.map(user => (
-                        <div key={user._id} className="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <div key={user._id} className={`block ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300`}>
                             <Link href={`/profiles/${user._id}`} className="flex items-center">
                                 {user.avatar && (
                                     <Image
@@ -92,7 +92,7 @@ export default function ProfilesList() {
                                         className="rounded-full mr-4"
                                     />
                                 )}
-                                <span className="text-lg font-semibold">{user.username}</span>
+                                <span className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{user.username}</span>
                             </Link>
                             {currentUserEmail && (
                                 <div className='flex justify-center'>

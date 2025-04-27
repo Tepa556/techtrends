@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import RejectPostModal from '../ui/RejectPostModal';
 import PostDetailsModal from '../ui/PostDetailsModal';
-
+import { useThemeStore } from '../lib/ThemeStore';
 // Типы данных для постов
 interface Post {
     _id: string;
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
     const router = useRouter();
-
+    const { theme } = useThemeStore();
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -176,13 +176,13 @@ export default function AdminDashboard() {
 
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <header className="bg-white shadow-sm">
+        <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+            <header className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-semibold text-gray-900">Панель администратора</h1>
+                    <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Панель администратора</h1>
                     <button
                         onClick={handleLogout}
-                        className="font-bold px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out"
+                        className={`font-bold px-4 py-2 ${theme === 'dark' ? 'bg-red-500 text-white' : 'bg-red-500 text-white'} rounded hover:bg-red-600 transition duration-300 ease-in-out`}
                     >
                         Выйти
                     </button>
@@ -191,8 +191,8 @@ export default function AdminDashboard() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-2">Управление публикациями</h2>
-                    <p className="text-gray-600">
+                    <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Управление публикациями</h2>
+                    <p className={`text-gray-600 ${theme === 'dark' ? 'text-white' : ''}`}>
                         Здесь вы можете просматривать, публиковать или отклонять статьи.
                     </p>
                 </div>
@@ -202,7 +202,9 @@ export default function AdminDashboard() {
                         className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out  ${
                             activeTab === 'all' 
                                 ? 'bg-blue-500 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         onClick={() => setActiveTab('all')}
                     >
@@ -212,7 +214,9 @@ export default function AdminDashboard() {
                         className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.PENDING 
                                 ? 'bg-blue-500 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         onClick={() => setActiveTab(POST_STATUS.PENDING)}
                     >
@@ -222,7 +226,9 @@ export default function AdminDashboard() {
                         className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.PUBLISHED 
                                 ? 'bg-blue-500 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         onClick={() => setActiveTab(POST_STATUS.PUBLISHED)}
                     >
@@ -232,7 +238,9 @@ export default function AdminDashboard() {
                         className={`px-4 py-2 rounded font-bold transition duration-300 ease-in-out ${
                             activeTab === POST_STATUS.REJECTED 
                                 ? 'bg-blue-500 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         onClick={() => setActiveTab(POST_STATUS.REJECTED)}
                     >
@@ -245,13 +253,13 @@ export default function AdminDashboard() {
                         <p className="text-lg">Загрузка...</p>
                     </div>
                 ) : filteredPosts.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                        <p className="text-lg text-gray-600">Нет постов для отображения</p>
+                    <div className={`rounded-lg shadow-md p-6 text-center ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                        <p className={`text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`}>Нет постов для отображения</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredPosts.map((post) => (
-                            <div key={post._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div key={post._id} className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden`}>
                                 {post.imageUrl && (
                                     <div className="h-48 w-full relative">
                                         <Image
@@ -277,10 +285,10 @@ export default function AdminDashboard() {
                                                 ? 'Опубликован' 
                                                 : 'Отклонен'}
                                     </span>
-                                    <h2 className="text-xl font-semibold mt-2">{post.title}</h2>
-                                    <p className="text-gray-600 text-sm mt-1">Автор: {post.author}</p>
-                                    <p className="text-gray-600 text-sm">Категория: {post.category}</p>
-                                    <p className="text-gray-600 mt-2 line-clamp-2">{post.description}</p>
+                                    <h2 className={`text-xl font-semibold mt-2 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{post.title}</h2>
+                                    <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Автор: {post.author}</p>
+                                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Категория: {post.category}</p>
+                                    <p className={`mt-2 line-clamp-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{post.description}</p>
                                     <div className="mt-4 flex flex-wrap gap-2">
                                         <button 
                                             onClick={() => handleViewDetails(post)}
@@ -294,14 +302,14 @@ export default function AdminDashboard() {
                                                 <button
                                                     onClick={() => handlePublish(post._id)}
                                                     disabled={statusUpdateLoading}
-                                                    className="  bg-green-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-green-600"
+                                                    className="bg-green-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-green-600"
                                                 >
                                                     Опубликовать
                                                 </button>
                                                 <button
                                                     onClick={() => handleRejectClick(post)}
                                                     disabled={statusUpdateLoading}
-                                                    className=" bg-red-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-red-600"
+                                                    className="bg-red-500 text-white font-bold px-4 py-2 rounded transition duration-300 ease-in-out hover:bg-red-600"
                                                 >
                                                     Отклонить
                                                 </button>

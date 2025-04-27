@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, TextField, Button, Checkbox, FormControlLabel } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
+import { useThemeStore } from '../lib/ThemeStore';
 
 interface RegModalProps {
     isOpen: boolean;
@@ -21,9 +22,9 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
     const [formError, setFormError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [privacyAccepted, setPrivacyAccepted] = useState(false);
+    const { theme } = useThemeStore();
 
     const validateUsername = (username: string): boolean => {
-        // Можно добавить дополнительные правила для валидации никнейма
         return username.length >= 3 && username.length <= 20 && /^[a-zA-Z0-9_]+$/.test(username);
     };
 
@@ -60,64 +61,131 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle className="relative font-bold">
+        <Dialog 
+            open={isOpen} 
+            onClose={onClose} 
+            maxWidth="sm" 
+            fullWidth
+            className={theme === 'dark' ? 'bg-gray-900' : 'bg-white'}
+        >
+            <DialogTitle className={`relative font-bold ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white'}`}>
                 <p className='font-bold'>Регистрация</p>
                 <button
                     onClick={onClose}
-                    className="absolute right-6 top-3 text-gray-500 hover:text-gray-700 transition-colors"
+                    className={`absolute right-6 top-3 ${theme === 'dark' ? 'text-gray-300 hover:text-gray-100' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
                 >
                     <CloseIcon className='cursor-pointer' />
                 </button>
             </DialogTitle>
-            <DialogContent>
+            <DialogContent className={theme === 'dark' ? 'bg-gray-900' : 'bg-white'}>
                 {isLoading ? (
                     <div className="flex justify-center my-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
                     </div>
                 ) : (
                     <form className="space-y-4" onSubmit={handleSubmit}>
-                        <TextField
-                            label="Имя пользователя"
-                            variant="outlined"
-                            fullWidth
-                            required
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            margin="normal"
-                            helperText="От 3 до 20 символов, только буквы, цифры и знак подчеркивания"
-                            error={!!formError && formError.includes('Никнейм')}
-                        />
-                        <TextField
-                            label="Электронная почта"
-                            variant="outlined"
-                            type="email"
-                            fullWidth
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            margin="normal"
-                        />
-                        <TextField
-                            label="Пароль"
-                            variant="outlined"
-                            type="password"
-                            fullWidth
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            margin="normal"
-                        />
-                        <TextField
-                            label="Подтвердите пароль"
-                            variant="outlined"
-                            type="password"
-                            fullWidth
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            margin="normal"
-                        />
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <label 
+                                    htmlFor="username"
+                                    className={`block mb-2 text-sm font-medium ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Имя пользователя
+                                </label>
+                                <input
+                                    id="username"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                        theme === 'dark' 
+                                            ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500' 
+                                            : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors`}
+                                    placeholder="Введите имя пользователя"
+                                    required
+                                />
+                                <p className={`mt-1 text-xs ${
+                                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                                }`}>
+                                    От 3 до 20 символов, только буквы, цифры и знак подчеркивания
+                                </p>
+                            </div>
+
+                            <div className="relative">
+                                <label 
+                                    htmlFor="email"
+                                    className={`block mb-2 text-sm font-medium ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Электронная почта
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                        theme === 'dark' 
+                                            ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500' 
+                                            : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors`}
+                                    placeholder="Введите email"
+                                    required
+                                />
+                            </div>
+
+                            <div className="relative">
+                                <label 
+                                    htmlFor="password"
+                                    className={`block mb-2 text-sm font-medium ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Пароль
+                                </label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                        theme === 'dark' 
+                                            ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500' 
+                                            : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors`}
+                                    placeholder="Введите пароль"
+                                    required
+                                />
+                            </div>
+
+                            <div className="relative">
+                                <label 
+                                    htmlFor="confirmPassword"
+                                    className={`block mb-2 text-sm font-medium ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Подтвердите пароль
+                                </label>
+                                <input
+                                    id="confirmPassword"
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                        theme === 'dark' 
+                                            ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500' 
+                                            : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors`}
+                                    placeholder="Подтвердите пароль"
+                                    required
+                                />
+                            </div>
+                        </div>
                         <FormControlLabel
                             control={
                                 <Checkbox 
@@ -127,8 +195,8 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                                 />
                             }
                             label={
-                                <span>
-                                    Я согласен с <Link href="/privacy-policy" target="_blank" className="text-blue-500 hover:text-blue-700">политикой конфиденциальности</Link>
+                                <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+                                    Я согласен с <Link href="/privacy-policy" target="_blank" className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-700'}`}>политикой конфиденциальности</Link>
                                 </span>
                             }
                         />
@@ -137,7 +205,7 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                     </form>
                 )}
             </DialogContent>
-            <div className="flex justify-center px-6 pb-6">
+            <div className={`flex justify-center px-6 pb-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
                 <button
                     onClick={handleSubmit} 
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200"
@@ -146,12 +214,12 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                     {isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
                 </button>
             </div>
-            <div className="px-6 pb-6 text-center">
-                <p className="text-sm text-gray-600">
+            <div className={`px-6 pb-6 text-center ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     Уже есть аккаунт? 
                     <button 
                         onClick={onOpenLogin} 
-                        className="ml-2 text-blue-500 hover:text-blue-700 font-medium transition-colors" 
+                        className={`ml-2 ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-700'} font-medium transition-colors`} 
                         disabled={isLoading}
                     >
                         Войти

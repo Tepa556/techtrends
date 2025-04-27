@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 export default function AdminLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
+    const { theme } = useThemeStore();
     // Проверяем наличие токена при загрузке компонента
     useEffect(() => {
         const adminToken = Cookies.get('admin_token');
@@ -49,21 +49,21 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className={`flex items-center justify-center min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+            <div className={`w-full max-w-md p-8 space-y-8 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md`}>
                 <div>
-                    <h1 className="text-2xl font-bold text-center">Вход в панель администратора</h1>
+                    <h1 className={`text-2xl font-bold text-center ${theme === 'dark' ? 'text-white' : ''}`}>Вход в панель администратора</h1>
                 </div>
 
                 {error && (
-                    <div className="p-3 bg-red-100 text-red-700 rounded">
+                    <div className={`p-3 ${theme === 'dark' ? 'bg-red-900 text-red-100' : 'bg-red-100 text-red-700'} rounded`}>
                         {error}
                     </div>
                 )}
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="email" className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
                             Email
                         </label>
                         <input
@@ -73,12 +73,12 @@ export default function AdminLogin() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-3 py-2 mt-1 border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${theme === 'dark' ? 'bg-gray-700 text-white' : ''}`}
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="password" className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
                             Пароль
                         </label>
                         <input

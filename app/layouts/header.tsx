@@ -7,13 +7,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import AuthModal from '../ui/authModal';
 import RegModal from '../ui/regModal';
-import { Avatar } from '@mui/material';
 import SearchDialog from '../ui/searchModal';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
 import jwt from 'jsonwebtoken';
 import { useRouter } from 'next/navigation';
-
+import ThemeToogle from '../ui/ThemeToogle';
+import { useThemeStore } from '../lib/ThemeStore';
 interface Category {
     name: string;
     link: string;
@@ -25,6 +25,7 @@ interface User {
 }
 
 export default function Header() {
+    const { theme } = useThemeStore();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isRegModalOpen, setIsRegModalOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -171,46 +172,51 @@ export default function Header() {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
+    useEffect(() => {
+        console.log(theme);
+    }, [theme]);
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+            <header className={`fixed top-0 left-0 right-0 z-50 shadow-sm ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-4">
+                            <Image src={theme === 'dark' ? '/logo/Logo-dark.png' : '/logo/Logo-light.png'} alt="Logo" width={50} height={50} />
                             <Link href="/" className="flex-shrink-0 flex items-center">
-                                <h1 className="text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600">TechTrends</h1>
+                                <h1 className={`text-2xl font-bold transition-colors hover:text-blue-600 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>TechTrends</h1>
                             </Link>
                         </div>
                         
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-1">
-                            <a href="/" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-primary hover:text-blue-500">Главная</a>
+                            <a href="/" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-primary hover:text-blue-500'}`}>Главная</a>
                             <div className="relative group">
-                                <button className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">Категории</button>
-                                <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                                <button className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}>Категории</button>
+                                <div className={`absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10`}>
                                     {categories.map((category: Category) => (
-                                        <a key={category.name} href={category.link} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
+                                        <a key={category.name} href={category.link} className={`block px-4 py-2 text-sm font-semibold ${theme === 'dark' ? 'text-white hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}>
                                             {category.name}
                                         </a>
                                     ))}
                                 </div>
                             </div>
-                            <a href="/about" className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500">О нас</a>
+                            <a href="/about" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}>О нас</a>
                             <button
                                 onClick={handleProfilesClick}
-                                className="px-3 py-2 rounded-md text-sm font-semibold transition-colors hover:text-blue-500"
+                                className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}
                             >
                                 Профили
                             </button>
                             <button
                                 onClick={handleOpenSearch}
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 w-10"
+                                className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} h-10 w-10`}
                             >
                                 <SearchIcon className="h-5 w-5" />
                             </button>
+                            <ThemeToogle />
                             {loading ? (
                                 <div className="flex items-center space-x-2">
-                                    <div className="h-4 w-32 bg-gray-300 rounded animate-pulse"></div>
+                                    <div className={`h-4 w-32 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} rounded animate-pulse`}></div>
                                 </div>
                             ) : user ? (
                                 <div className="flex items-center space-x-2">
@@ -223,15 +229,14 @@ export default function Header() {
                                             className="rounded-full"
                                         />
                                     )}
-                                    <Link href={`/profile`} className="text-sm font-semibold hover:underline transition duration-200">
+                                    <Link href={`/profile`} className={`text-sm font-semibold hover:underline transition duration-200 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                                         {user.username || user.email}
                                     </Link>
-
                                 </div>
                             ) : (
                                 <div className="ml-4 flex items-center space-x-2">
-                                    <button onClick={handleOpenLogin} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 h-10 px-4 py-2">Войти</button>
-                                    <button onClick={handleOpenRegister} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold bg-blue-500 text-white ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-blue-600 h-10 px-4 py-2">Регистрация</button>
+                                    <button onClick={handleOpenLogin} className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} h-10 px-4 py-2`}>Войти</button>
+                                    <button onClick={handleOpenRegister} className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2`}>Регистрация</button>
                                 </div>
                             )}
                         </nav>
@@ -239,13 +244,14 @@ export default function Header() {
                         {/* Mobile Navigation Icons */}
                         <div className="flex items-center space-x-4 md:hidden">
                             <button 
-                                className="p-1 rounded-full text-gray-600 hover:text-blue-600 transition-colors focus:outline-none" 
+                                className={`p-1 rounded-full ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-gray-600 hover:text-blue-600'} transition-colors focus:outline-none`} 
                                 onClick={handleOpenSearch}
                             >
                                 <SearchIcon />
                             </button>
+                            <ThemeToogle />
                             <button 
-                                className="p-1 rounded-full text-gray-600 hover:text-blue-600 transition-colors focus:outline-none" 
+                                className={`p-1 rounded-full ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-gray-600 hover:text-blue-600'} transition-colors focus:outline-none`} 
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             >
                                 {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -256,15 +262,15 @@ export default function Header() {
 
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+                    <div className={`md:hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-t border-gray-200 shadow-lg`}>
                         <div className="px-2 pt-2 pb-4 space-y-1">
-                            <a href="/" className="block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors">Главная</a>
+                            <a href="/" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>Главная</a>
                             
                             {/* Mobile Categories Dropdown */}
                             <div className="relative">
                                 <button 
                                     onClick={() => document.getElementById('mobile-categories')?.classList.toggle('hidden')}
-                                    className="w-full text-left block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors"
+                                    className={`w-full text-left block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
                                 >
                                     Категории
                                 </button>
@@ -273,7 +279,7 @@ export default function Header() {
                                         <a 
                                             key={category.name} 
                                             href={category.link} 
-                                            className="block px-3 py-2 rounded-md text-sm font-bold hover:text-blue-600 transition-colors"
+                                            className={`block px-3 py-2 rounded-md text-sm font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             {category.name}
@@ -282,10 +288,10 @@ export default function Header() {
                                 </div>
                             </div>
                             
-                            <a href="/about" className="block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors">О нас</a>
+                            <a href="/about" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>О нас</a>
                             <button
                                 onClick={handleProfilesClick}
-                                className="w-full text-left block px-3 py-3 rounded-md text-base font-bold hover:text-blue-600 transition-colors"
+                                className={`w-full text-left block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
                             >
                                 Профили
                             </button>
@@ -304,7 +310,7 @@ export default function Header() {
                                         )}
                                         <Link 
                                             href={`/profile`} 
-                                            className="text-base font-bold hover:text-blue-600 transition-colors"
+                                            className={`text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             {user.username || user.email}
@@ -315,13 +321,13 @@ export default function Header() {
                                 <div className="border-t border-gray-200 pt-2 flex flex-col items-center space-y-2 p-3">
                                     <button 
                                         onClick={handleOpenLogin} 
-                                        className="w-96 py-2 px-4 rounded-md text-center text-base font-bold border border-gray-300 hover:bg-gray-100 transition-colors"
+                                        className={`w-96 py-2 px-4 rounded-md text-center text-base font-bold border ${theme === 'dark' ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-100'} transition-colors`}
                                     >
                                         Войти
                                     </button>
                                     <button 
                                         onClick={handleOpenRegister} 
-                                        className="w-96 py-2 px-4 rounded-md text-center text-base font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                        className={`w-96 py-2 px-4 rounded-md text-center text-base font-bold ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
                                     >
                                         Регистрация
                                     </button>

@@ -1,7 +1,7 @@
 import { Modal, Box } from '@mui/material';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
-
+import { useThemeStore } from '../lib/ThemeStore';
 interface DeletePostModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -12,7 +12,7 @@ interface DeletePostModalProps {
 export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted }: DeletePostModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
-
+    const { theme } = useThemeStore();
     const handleDelete = async () => {
         if (!postId) return;
         
@@ -58,20 +58,20 @@ export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     width: 400,
-                    bgcolor: 'background.paper',
+                    bgcolor: theme === 'dark' ? '#0f141c' : 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
                 }}
             >
-                <h2 className="font-bold text-lg mb-4">Удалить пост</h2>
+                <h2 className={`font-bold text-lg mb-4 ${theme === 'dark' ? 'text-white' : ''}`}>Удалить пост</h2>
                 
                 {message ? (
                     <div className={`p-3 mb-4 rounded ${message.includes('ошибка') || message.includes('Ошибка') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                         {message}
                     </div>
                 ) : (
-                    <p className="mb-6">Вы уверены, что хотите удалить этот пост? Это действие невозможно отменить.</p>
+                    <p className={`mb-6 ${theme === 'dark' ? 'text-white' : ''}`}>Вы уверены, что хотите удалить этот пост? Это действие невозможно отменить.</p>
                 )}
                 
                 {isLoading ? (
@@ -83,14 +83,14 @@ export default function DeletePostModal({ isOpen, onClose, postId, onPostDeleted
                         <div className="flex justify-end">
                             <button
                                 onClick={onClose}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3"
+                                className={`bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600 text-white' : ''}`}
                                 disabled={isLoading}
                             >
                                 Отмена
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200"
+                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200"
                                 disabled={isLoading}
                             >
                                 Удалить

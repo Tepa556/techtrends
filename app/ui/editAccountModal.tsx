@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react';
-import { Modal, Box, TextField } from '@mui/material';
+import { Modal, Box, TextField, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import { User } from '@/app/types/user';
-
+import { useThemeStore } from '../lib/ThemeStore';
 interface UserEditModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -22,7 +23,7 @@ export default function EditAccountModal({ isOpen, onClose, onUserUpdated }: Use
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const { theme } = useThemeStore();
     // Загружаем данные пользователя при открытии модального окна
     useEffect(() => {
         if (isOpen) {
@@ -185,7 +186,7 @@ export default function EditAccountModal({ isOpen, onClose, onUserUpdated }: Use
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     width: 400,
-                    bgcolor: 'background.paper',
+                    bgcolor: theme === 'dark' ? '#0f141c' : 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
@@ -193,7 +194,21 @@ export default function EditAccountModal({ isOpen, onClose, onUserUpdated }: Use
                     overflowY: 'auto',
                 }}
             >
-                <h2 className='font-bold text-xl mb-4'>Редактировать профиль</h2>
+                
+                <div className="flex justify-between items-center mb-4 ">
+                    <h2 className={`font-bold text-xl ${theme === 'dark' ? 'text-white' : ''}`}>Редактировать профиль</h2>
+                    <IconButton 
+                        onClick={onClose}
+                        sx={{ 
+                            color: 'gray',
+                            '&:hover': {
+                                color: 'black',
+                            }
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </div>
                 
                 {message && (
                     <div className={`p-3 mb-4 rounded ${message.includes('ошибка') || message.includes('Ошибка') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
@@ -252,39 +267,59 @@ export default function EditAccountModal({ isOpen, onClose, onUserUpdated }: Use
                             <p className="text-sm text-gray-500">Нажмите на изображение для загрузки новой аватарки</p>
                         </div>
                         
-                        <TextField
-                            fullWidth
-                            label="Имя пользователя"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            margin="normal"
-                        />
-                        
-                        <TextField
-                            fullWidth
-                            label="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            margin="normal"
-                        />
-                        
-                        <TextField
-                            fullWidth
-                            label="Новый пароль"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            margin="normal"
-                        />
-                        
-                        <TextField
-                            fullWidth
-                            label="Подтверждение пароля"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            margin="normal"
-                        />
+                        <div className="space-y-4">
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Имя пользователя
+                                </label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Введите имя пользователя"
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Введите email"
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Новый пароль
+                                </label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Введите новый пароль"
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Подтверждение пароля
+                                </label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Подтвердите новый пароль"
+                                />
+                            </div>
+                        </div>
                         
                         <div className="flex space-x-4 mt-6">
                             <button 

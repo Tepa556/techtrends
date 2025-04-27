@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'; 
 import PostCard from '@/app/ui/PostCard';
 import { categories } from '@/app/lib/categories-for-posts-categories'; 
-
+import { useThemeStore } from '../lib/ThemeStore';
 interface Post {
     _id: string;
     title: string;
@@ -23,7 +23,7 @@ const PostsCategory = () => {
     const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const { theme } = useThemeStore();
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -61,20 +61,20 @@ const PostsCategory = () => {
 
     // Скелетон для карточки поста
     const PostCardSkeleton = () => (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-            <div className="h-48 bg-gray-300"></div>
+        <div className={`bg-white rounded-lg shadow-md overflow-hidden animate-pulse ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+            <div className={`h-48 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-300'}`}></div>
             <div className="p-4">
-                <div className="w-24 h-5 bg-gray-200 rounded mb-2"></div>
-                <div className="h-7 bg-gray-200 rounded mb-4"></div>
+                <div className={`w-24 h-5 rounded mb-2 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+                <div className={`h-7 rounded mb-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
                 <div className="space-y-2 mb-4">
-                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                    <div className={`h-4 rounded w-full ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+                    <div className={`h-4 rounded w-5/6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
                 </div>
                 <div className="flex justify-between items-center mt-4">
-                    <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                    <div className={`w-20 h-4 rounded ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
                     <div className="flex space-x-3">
-                        <div className="w-16 h-4 bg-gray-200 rounded"></div>
-                        <div className="w-16 h-4 bg-gray-200 rounded"></div>
+                        <div className={`w-16 h-4 rounded ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+                        <div className={`w-16 h-4 rounded ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@ const PostsCategory = () => {
 
     if (error) {
         return (
-            <section className="py-16 md:py-24 bg-white">
+            <section className={`py-16 md:py-24 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
                 <div className="container mx-auto px-4">
                     <div className="text-center text-red-500 font-medium py-8 bg-red-50 rounded-lg">
                         {error}
@@ -94,34 +94,34 @@ const PostsCategory = () => {
     }
 
     return (
-        <section className="py-16 md:py-24 bg-white transition-colors duration-300">
+        <section className={`py-16 md:py-24 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'} transition-colors duration-300`}>
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <span className="text-sm font-medium text-blue-600 uppercase tracking-wider">Исследуйте</span>
-                    <h2 className="text-3xl md:text-4xl font-bold mt-1 text-gray-800">Категории</h2>
+                    <span className={`text-sm font-medium ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} uppercase tracking-wider`}>Исследуйте</span>
+                    <h2 className={`text-3xl md:text-4xl font-bold mt-1 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Категории</h2>
                 </div>
                 
                 {/* Кнопки категорий */}
-                <div className="flex flex-wrap justify-center gap-3 mb-10">
+                <div className="flex flex-wrap justify-center gap-3 mb-10 font-bold ">
                     <button
                         className={`px-4 py-2 rounded-full transition-colors ${
                             selectedCategory === 'Все' 
                                 ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : `${theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`
                         }`}
                         onClick={() => setSelectedCategory('Все')}
                     >
                         Все
                     </button>
                     {categories
-                        .filter(category => category.name !== 'Все') // Исключаем категорию "Все" из массива
+                        .filter(category => category.name !== 'Все')
                         .map(category => (
                             <button
                                 key={category.name}
                                 className={`px-4 py-2 font-bold rounded-full transition-colors ${
                                     selectedCategory === category.name 
                                         ? 'bg-blue-600 text-white' 
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        : `${theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`
                                 }`}
                                 onClick={() => setSelectedCategory(category.name)}
                             >
@@ -138,13 +138,13 @@ const PostsCategory = () => {
                         ))}
                     </div>
                 ) : filteredPosts.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-100 rounded-lg shadow-sm">
-                        <p className="text-gray-600 font-bold text-xl">
+                    <div className={`text-center py-12 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} rounded-lg shadow-sm`}>
+                        <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-bold text-xl`}>
                             {selectedCategory === 'Все' 
                                 ? 'В данный момент нет опубликованных постов' 
                                 : `В категории «${selectedCategory}» пока нет публикаций`}
                         </p>
-                        <p className="text-gray-500 mt-2">
+                        <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
                             {selectedCategory === 'Все' 
                                 ? 'Заходите позже, чтобы увидеть новые публикации' 
                                 : 'Попробуйте выбрать другую категорию или заходите позже'}

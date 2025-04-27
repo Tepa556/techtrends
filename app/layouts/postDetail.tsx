@@ -10,7 +10,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentList from '@/app/ui/comments/CommentList';
 import CommentForm from '@/app/ui/comments/CommentForm';
-
+import { useThemeStore } from '../lib/ThemeStore';
 // Интерфейсы
 interface Post {
   _id: string;
@@ -52,7 +52,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
+  const { theme } = useThemeStore();  
   // Проверка авторизации пользователя
   useEffect(() => {
     const token = Cookies.get('token');
@@ -158,72 +158,72 @@ export default function PostDetail({ postId }: PostDetailProps) {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <article className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
+          <article className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto`}>
           {/* Скелетон для заголовка и информации о посте */}
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="animate-pulse bg-gray-300 h-5 w-24 rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-20 rounded"></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-24 rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-20 rounded`}></div>
             </div>
-            <div className="animate-pulse bg-gray-300 h-8 w-3/4 rounded mb-4"></div>
+            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-8 w-3/4 rounded mb-4`}></div>
             
             {/* Скелетон для описания */}
-            <div className="animate-pulse bg-gray-300 h-20 w-full rounded mb-6"></div>
+            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-20 w-full rounded mb-6`}></div>
             
             {/* Скелетон для информации об авторе */}
             <div className="flex items-center mb-6">
-              <div className="animate-pulse bg-gray-300 h-10 w-10 rounded-full mr-3"></div>
-              <div className="animate-pulse bg-gray-300 h-5 w-32 rounded"></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full mr-3`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded`}></div>
             </div>
           </div>
           
           {/* Скелетон для изображения поста */}
-          <div className="animate-pulse bg-gray-300 h-96 w-full"></div>
+          <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-96 w-full`}></div>
           
           {/* Скелетон для содержимого поста */}
           <div className="p-6">
             <div className="flex flex-col space-y-3">
-              <div className="animate-pulse bg-gray-300 h-4 w-full rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-full rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-11/12 rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-full rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-10/12 rounded"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-full rounded"></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-11/12 rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-10/12 rounded`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
             </div>
             
             {/* Скелетон для кнопки лайка */}
-            <div className="flex items-center mt-8 border-t pt-4">
-              <div className="animate-pulse bg-gray-300 h-6 w-6 rounded-full"></div>
-              <div className="animate-pulse bg-gray-300 h-4 w-6 rounded ml-2"></div>
+            <div className={`flex items-center mt-8 border-t pt-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-6 rounded-full`}></div>
+              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-6 rounded ml-2`}></div>
             </div>
           </div>
           
           {/* Скелетон для секции комментариев */}
-          <div className="p-6 bg-gray-50 border-t">
-            <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-4"></div>
+          <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} border-t`}>
+            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-48 rounded mb-4`}></div>
             
             {/* Скелетон для формы комментариев */}
-            <div className="animate-pulse bg-gray-300 h-24 w-full rounded mb-6"></div>
+            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-24 w-full rounded mb-6`}></div>
             
             {/* Скелетоны комментариев */}
             <div className="space-y-6">
               {/* Комментарий 1 */}
               <div className="flex">
-                <div className="animate-pulse bg-gray-300 h-10 w-10 rounded-full"></div>
+                <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full`}></div>
                 <div className="ml-3 flex-1">
-                  <div className="animate-pulse bg-gray-300 h-5 w-32 rounded mb-2"></div>
-                  <div className="animate-pulse bg-gray-300 h-4 w-full rounded mb-1"></div>
-                  <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded mb-2`}></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded mb-1`}></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-5/6 rounded`}></div>
                 </div>
               </div>
               
               {/* Комментарий 2 */}
               <div className="flex">
-                <div className="animate-pulse bg-gray-300 h-10 w-10 rounded-full"></div>
+                <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full`}></div>
                 <div className="ml-3 flex-1">
-                  <div className="animate-pulse bg-gray-300 h-5 w-32 rounded mb-2"></div>
-                  <div className="animate-pulse bg-gray-300 h-4 w-full rounded mb-1"></div>
-                  <div className="animate-pulse bg-gray-300 h-4 w-4/6 rounded"></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded mb-2`}></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded mb-1`}></div>
+                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-4/6 rounded`}></div>
                 </div>
               </div>
             </div>
@@ -263,17 +263,17 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <article className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
+      <article className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto`}>
         {/* Заголовок и информация о посте */}
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-blue-600 uppercase tracking-wider">{post.category}</span>
-            <span className="text-sm text-gray-500">{formattedDate}</span>
+            <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{formattedDate}</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
+          <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>{post.title}</h1>
           
           {/* Описание поста */}
-          <p className="text-gray-700 text-lg mb-6 italic ">
+          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-lg mb-6 italic`}>
             {post.description}
           </p>
           
@@ -288,7 +288,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
                 className="rounded-full"
               />
             </div>
-            <span className="font-medium text-gray-800">{post.author}</span>
+            <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{post.author}</span>
           </div>
         </div>
         
@@ -307,13 +307,13 @@ export default function PostDetail({ postId }: PostDetailProps) {
         
         {/* Содержимое поста */}
         <div className="p-6">
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: post.text }} />
+          <div className={`prose max-w-none ${theme === 'dark' ? 'prose-invert text-white' : ''}`} dangerouslySetInnerHTML={{ __html: post.text }} />
           
           {/* Кнопка лайка */}
-          <div className="flex items-center mt-8 border-t pt-4">
+          <div className={`flex items-center mt-8 border-t pt-4 ${theme === 'dark' ? 'border-gray-700' : ''}`}>
             <button 
               onClick={handleLikeToggle}
-              className="flex items-center text-gray-700 hover:text-red-500 transition-colors"
+              className={`flex items-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} hover:text-red-500 transition-colors`}
               aria-label={isLiked ? "Убрать лайк" : "Поставить лайк"}
             >
               {isLiked ? (
@@ -327,13 +327,13 @@ export default function PostDetail({ postId }: PostDetailProps) {
         </div>
         
         {/* Секция комментариев */}
-        <div className="p-6 bg-gray-50 border-t">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Комментарии ({post.comments?.length || 0})</h2>
+        <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-gray-50'} border-t`}>
+          <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Комментарии ({post.comments?.length || 0})</h2>
           
           {isAuthenticated ? (
             <CommentForm postId={post._id} onCommentAdded={handleCommentAdded} />
           ) : (
-            <p className="text-gray-600 mb-4">
+            <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} mb-4`}>
               <Link href="/login" className="text-blue-500 hover:underline">Войдите</Link>, чтобы оставить комментарий
             </p>
           )}

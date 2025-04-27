@@ -3,6 +3,7 @@
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import { useThemeStore } from '../lib/ThemeStore';
 
 interface LogoutConfirmationModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface LogoutConfirmationModalProps {
 }
 
 export default function LogOutModal({ isOpen, onConfirm, onCancel }: LogoutConfirmationModalProps) {
+    const { theme } = useThemeStore();
     return (
         <Modal open={isOpen} onClose={onCancel}>
             <Box
@@ -20,18 +22,18 @@ export default function LogOutModal({ isOpen, onConfirm, onCancel }: LogoutConfi
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     width: 600,
-                    bgcolor: 'background.paper',
+                    bgcolor: theme === 'dark' ? '#0f141c' : 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
                 }}
             >
-                <h2 className='font-bold text-3xl'>Вы действительно хотите выйти?</h2>
+                <h2 className={`font-bold text-3xl ${theme === 'dark' ? 'text-white' : ''}`}>Вы действительно хотите выйти?</h2>
                 <div className="flex justify-end space-x-2 mt-4 gap-4 text-white">
-                    <button  onClick={onConfirm} className='w-20 h-7 rounded-xl bg-red-600 font-bold transition duraction-300 hover:bg-red-700'>
+                    <button  onClick={onConfirm} className='w-20 h-9 rounded-xl bg-red-600 font-bold transition duraction-300 hover:bg-red-700'>
                         Да
                     </button>
-                    <button  onClick={onCancel}  className='w-20 h-7 rounded-xl bg-green-600 font-bold transition duraction-300 hover:bg-green-700'>
+                    <button  onClick={onCancel}  className='w-20 h-9 rounded-xl bg-green-600 font-bold transition duraction-300 hover:bg-green-700'>
                         Нет
                     </button>
                 </div>

@@ -1,83 +1,84 @@
 "use client"
-
-import { Container, Typography, Box, Breadcrumbs } from '@mui/material';
+import { Container, Box, Breadcrumbs } from '@mui/material';
 import Link from 'next/link';
 import Header from '../layouts/header';
 import Footer from '../layouts/footer';
+import { useThemeStore } from '@/app/lib/ThemeStore';
 export default function PrivacyPolicy() {
+  const { theme } = useThemeStore();
   return (
-    <>
+    <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
     <Header />
-    <Container maxWidth="lg" className="py-8">
+    <Container maxWidth="lg" className={`py-8 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
       <Box mb={4}>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link href="/" className="text-blue-500 hover:text-blue-700">
+          <Link href="/" className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-700'}`}>
             Главная
           </Link>
-          <Typography color="text.primary">Политика конфиденциальности</Typography>
+          <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>Политика конфиденциальности</span>
         </Breadcrumbs>
       </Box>
 
-      <Typography variant="h4" component="h1" gutterBottom className="font-bold">
+      <h1 className={`text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         Политика конфиденциальности
-      </Typography>
+      </h1>
       
-      <Typography variant="body1" paragraph>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Последнее обновление: {new Date().toLocaleDateString()}
-      </Typography>
+      </p>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         1. Введение
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Добро пожаловать на TechTrends. Мы ценим ваше доверие и стремимся защитить вашу личную информацию. 
         Эта политика конфиденциальности объясняет, как мы собираем, используем и защищаем ваши данные.
-      </Typography>
+      </p>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         2. Какую информацию мы собираем
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Мы собираем следующие типы информации:
-      </Typography>
-      <ul className="list-disc pl-8 mb-4">
+      </p>
+      <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         <li>Личная информация: имя пользователя, адрес электронной почты при регистрации.</li>
         <li>Информация о действиях: публикации, комментарии, лайки и другие взаимодействия с нашей платформой.</li>
         <li>Техническая информация: IP-адрес, тип устройства, тип браузера и операционную систему.</li>
       </ul>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         3. Как мы используем вашу информацию
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Мы используем вашу информацию для:
-      </Typography>
-      <ul className="list-disc pl-8 mb-4">
+      </p>
+      <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         <li>Предоставления наших услуг и улучшения пользовательского опыта.</li>
         <li>Персонализации контента и рекомендаций.</li>
         <li>Обеспечения безопасности платформы и предотвращения мошенничества.</li>
         <li>Связи с вами по важным обновлениям и уведомлениям.</li>
       </ul>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         4. Как мы защищаем вашу информацию
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Мы применяем технические и организационные меры для защиты вашей информации, включая:
-      </Typography>
-      <ul className="list-disc pl-8 mb-4">
+      </p>
+      <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         <li>Шифрование данных при передаче и хранении.</li>
         <li>Регулярное тестирование безопасности системы.</li>
         <li>Ограничение доступа к личной информации только для авторизованных сотрудников.</li>
       </ul>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         5. Ваши права
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Вы имеете следующие права в отношении ваших данных:
-      </Typography>
-      <ul className="list-disc pl-8 mb-4">
+      </p>
+      <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         <li>Право на доступ к вашей личной информации.</li>
         <li>Право на исправление неточной или неполной информации.</li>
         <li>Право на удаление вашей информации (право быть забытым).</li>
@@ -85,25 +86,24 @@ export default function PrivacyPolicy() {
         <li>Право на передачу данных.</li>
       </ul>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         6. Изменения в политике конфиденциальности
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Мы можем обновлять эту политику конфиденциальности время от времени. Мы уведомим вас о существенных изменениях 
         через электронную почту или через уведомление на нашем сайте. Мы рекомендуем периодически проверять эту страницу 
         для получения последней информации о наших практиках конфиденциальности.
-      </Typography>
+      </p>
 
-      <Typography variant="h6" component="h2" gutterBottom className="font-semibold mt-6">
+      <h2 className={`text-xl font-semibold mt-6 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         7. Контактная информация
-      </Typography>
-      <Typography variant="body1" paragraph>
+      </h2>
+      <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
         Если у вас есть вопросы или опасения относительно нашей политики конфиденциальности или обработки ваших данных, 
-        пожалуйста, свяжитесь с нами по адресу: <span className="text-blue-500">artez7.ru@gmail.com</span>
-      </Typography>
+        пожалуйста, свяжитесь с нами по адресу: <span className={theme === 'dark' ? 'text-blue-400' : 'text-blue-500'}>artez7.ru@gmail.com</span>
+      </p>
     </Container>
     <Footer />
-    </>
+    </div>
   );
 }
-

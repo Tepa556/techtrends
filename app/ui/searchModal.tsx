@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
+import { useThemeStore } from '../lib/ThemeStore';
 interface SearchDialogProps {
     isOpen: boolean;
     onClose: () => void;
@@ -28,7 +28,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
-
+    const { theme } = useThemeStore();
     // Загрузка постов при открытии модального окна
     useEffect(() => {
         const fetchPosts = async () => {
@@ -84,17 +84,18 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth classes={{ paper: 'rounded-lg' }}>
+        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth classes={{ paper: 'rounded-lg' }} >
+            <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
             <DialogTitle className="relative font-bold">
-                <div className='grid grid-cols-3'>
+                <div className='grid grid-cols-3 '>
                     <div className='flex col-start-2 justify-center text-center'>
-                        <h2 className="text-lg font-semibold leading-none tracking-tight content-center">Поиск</h2>
+                        <h2 className={`text-lg font-semibold leading-none tracking-tight content-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Поиск</h2>
                     </div>
                     <div className='flex justify-end content-center'>
                         <button
                             onClick={onClose}
                             color="inherit"
-                            className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            className={`rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
                         >
                             <CloseIcon />
                         </button>
@@ -105,7 +106,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 <form className="relative mt-3">
                     <input
                         type="text"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className={`flex h-10 w-full rounded-md border ${theme === 'dark' ? 'border-gray-700 bg-gray-800 text-white placeholder:text-gray-400' : 'border-gray-300 bg-white text-gray-900 placeholder:text-gray-500'} px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2`}
                         placeholder="Поиск статей, категорий..."
                         value={searchTerm}
                         onChange={handleSearch}
@@ -115,20 +116,20 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                     <div className="space-y-3">
                         {isLoading ? (
                             <div className="flex justify-center py-4">
-                                <div className="animate-pulse bg-gray-300 h-48 w-full rounded"></div>
+                                <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-300'} h-48 w-full rounded`}></div>
                             </div>
                         ) : error ? (
-                            <p className="text-sm text-red-500">{error}</p>
+                            <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-500'}`}>{error}</p>
                         ) : (
                             results.map((result) => (
-                                <div key={result._id} className="flex items-start p-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                                <div key={result._id} className={`flex items-start p-3 rounded-lg ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} cursor-pointer transition-colors`}>
                                     <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 mr-3">
                                         <img src={result.imageUrl || "/placeholder-image.jpg"} alt={result.title} className="w-full h-full object-cover" />
                                     </div>
                                     <div>
-                                        <h4 className="font-medium line-clamp-1">{result.title}</h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">{result.description}</p>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{result.category}</div>
+                                        <h4 className={`font-medium line-clamp-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{result.title}</h4>
+                                        <p className={`text-sm line-clamp-2 mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{result.description}</p>
+                                        <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>{result.category}</div>
                                     </div>
                                 </div>
                             ))
@@ -136,6 +137,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                     </div>
                 </div>
             </DialogContent>
+            </div>
         </Dialog>
     );
 }

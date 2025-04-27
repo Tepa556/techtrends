@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Cookies from 'js-cookie';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 interface Comment {
   _id: string;
   text: string;
@@ -24,7 +24,7 @@ export default function CommentList({ comments, postId }: CommentListProps) {
   const [commentsList, setCommentsList] = useState<Comment[]>(comments);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-
+  const { theme } = useThemeStore();
   // Получение информации о текущем пользователе
   useState(() => {
     const fetchCurrentUser = async () => {
@@ -81,10 +81,10 @@ export default function CommentList({ comments, postId }: CommentListProps) {
     <div className="space-y-6">
       {commentsList.map((comment) => {
         const formattedDate = format(new Date(comment.createdAt), 'd MMMM yyyy, HH:mm', { locale: ru });
-        const canDelete = currentUser === comment.author || isAdmin;
+        const canDelete = currentUser === comment.author ;
 
         return (
-          <div key={comment._id} className="flex space-x-4 bg-white p-4 rounded-lg shadow-sm">
+          <div key={comment._id} className={`flex space-x-4 p-4 rounded-lg shadow-sm ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="flex-shrink-0">
               <div className="relative w-10 h-10">
                 <Image 
@@ -99,20 +99,20 @@ export default function CommentList({ comments, postId }: CommentListProps) {
             <div className="flex-grow">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">{comment.author}</h3>
-                  <p className="text-xs text-gray-500">{formattedDate}</p>
+                  <h3 className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>{comment.author}</h3>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{formattedDate}</p>
                 </div>
                 {canDelete && (
                   <button 
                     onClick={() => handleDeleteComment(comment._id)}
-                    className="text-gray-400 hover:text-red-500"
+                    className={`${theme === 'dark' ? 'text-gray-400 hover:text-red-400' : 'text-gray-400 hover:text-red-500'}`}
                     aria-label="Удалить комментарий"
                   >
                     <DeleteIcon fontSize="small" />
                   </button>
                 )}
               </div>
-              <div className="mt-2 text-sm text-gray-700">{comment.text}</div>
+              <div className={`mt-2 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{comment.text}</div>
             </div>
           </div>
         );

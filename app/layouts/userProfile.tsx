@@ -12,7 +12,7 @@ import { Button } from '@mui/material';
 import CreatePostModal from '@/app/ui/CreatePostModal';
 import EditPostModal from '../ui/EditPostModal';
 import DeletePostModal from '../ui/DeletePostModal';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 interface Notification {
     sender: string;
     message: string;
@@ -61,7 +61,7 @@ export default function UserProfile() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-
+    const { theme } = useThemeStore();
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -293,24 +293,24 @@ export default function UserProfile() {
 
     if (!user) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen px-4">
-                <div className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg relative">
+            <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+                <div className={`w-full max-w-3xl p-8 rounded-lg shadow-lg relative ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                     <div className="flex flex-col items-start">
                         {/* Скелетоны для профиля */}
-                        <div className="animate-pulse bg-gray-300 h-16 w-16 rounded-full mb-4"></div>
-                        <div className="animate-pulse bg-gray-300 h-8 w-32 rounded mb-2"></div>
-                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
-                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
-                        <div className="animate-pulse bg-gray-300 h-6 w-48 rounded mb-2"></div>
+                        <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-16 w-16 rounded-full mb-4`}></div>
+                        <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-8 w-32 rounded mb-2`}></div>
+                        <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-48 rounded mb-2`}></div>
+                        <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-48 rounded mb-2`}></div>
+                        <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-48 rounded mb-2`}></div>
 
                         {/* Кнопки-скелетоны */}
                         <div className="flex mt-4 space-x-4">
-                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
-                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
-                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-32 rounded`}></div>
+                            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-32 rounded`}></div>
+                            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-32 rounded`}></div>
                         </div>
                         <div className="flex mt-4 space-x-4">
-                            <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-32 rounded`}></div>
                         </div>
                     </div>
                 </div>
@@ -319,17 +319,17 @@ export default function UserProfile() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen px-4">
-            <div className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg relative">
+        <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+            <div className={`w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg relative ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
 
                 <div>
                     <button
-                        className="absolute top-4 right-4"
+                        className={`absolute top-4 right-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
                         onClick={() => setIsEditModalOpen(true)}
                     >
                         <EditIcon />
                     </button>
-                    <h1 className="text-2xl font-bold mb-4 flex items-center">
+                    <h1 className={`text-2xl font-bold mb-4 flex items-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         {user.avatar && (
                             <Image
                                 src={user.avatar}
@@ -341,26 +341,44 @@ export default function UserProfile() {
                         )}
                         Профиль
                     </h1>
-                    <p><strong>Email:</strong> {user.email}</p>
-                    {user.username && <p><strong>Имя пользователя:</strong> {user.username}</p>}
-                    <p><strong>Количество подписчиков:</strong> {user.subscribers.length}</p>
-                    <p><strong>Количество подписок:</strong> {user.subscriptions.length}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}><strong>Email:</strong> {user.email}</p>
+                    {user.username && <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}><strong>Имя пользователя:</strong> {user.username}</p>}
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}><strong>Количество подписчиков:</strong> {user.subscribers.length}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}><strong>Количество подписок:</strong> {user.subscriptions.length}</p>
 
                     <div className="flex mt-4 space-x-4">
                         <button
-                            className={`${activeTab === 'posts' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            className={`${activeTab === 'posts' 
+                                ? 'bg-blue-500 text-white' 
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300' 
+                                    : 'bg-gray-300 text-gray-700'} 
+                                py-2 px-4 rounded font-bold transition duration-300 ease-in-out 
+                                hover:bg-blue-600 hover:text-white`}
                             onClick={() => setActiveTab('posts')}
                         >
                             Посты
                         </button>
                         <button
-                            className={`${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            className={`${activeTab === 'notifications' 
+                                ? 'bg-blue-500 text-white' 
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300' 
+                                    : 'bg-gray-300 text-gray-700'} 
+                                py-2 px-4 rounded font-bold transition duration-300 ease-in-out 
+                                hover:bg-blue-600 hover:text-white`}
                             onClick={() => setActiveTab('notifications')}
                         >
                             Уведомления
                         </button>
                         <button
-                            className={`${activeTab === 'subscriptions' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'} py-2 px-4 rounded font-bold transition duration-300 ease-in-out hover:bg-blue-600 hover:text-white`}
+                            className={`${activeTab === 'subscriptions' 
+                                ? 'bg-blue-500 text-white' 
+                                : theme === 'dark' 
+                                    ? 'bg-gray-700 text-gray-300' 
+                                    : 'bg-gray-300 text-gray-700'} 
+                                py-2 px-4 rounded font-bold transition duration-300 ease-in-out 
+                                hover:bg-blue-600 hover:text-white`}
                             onClick={() => setActiveTab('subscriptions')}
                         >
                             Подписки
@@ -385,15 +403,15 @@ export default function UserProfile() {
 
             </div>
 
-            <div className="min-w-[300px] max-w-[900px] bg-gray-100 p-4 mt-4 rounded-lg shadow-lg max-h-[400px]">
+            <div className={`min-w-[300px] max-w-[900px] p-4 mt-4 rounded-lg shadow-lg max-h-[400px] ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                 {activeTab === 'subscriptions' && (
                     <div>
-                        <h2 className="text-xl font-bold mb-2">Подписки</h2>
+                        <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Подписки</h2>
                         <div className="flex flex-wrap justify-center max-h-96">
-                            <div role="tablist" aria-orientation="horizontal" className="h-30 overflow-y-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                            <div role="tablist" aria-orientation="horizontal" className={`h-30 overflow-y-hidden items-center rounded-md inline-flex w-auto justify-start p-5 gap-10 ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`} tabIndex={0} style={{ outline: 'none' }}>
                                 {subscriptionUsers.length > 0 ? (
                                     subscriptionUsers.map((sub) => (
-                                        <div key={sub._id} className="bg-white p-4 pr-5 rounded-lg shadow-md flex items-center">
+                                        <div key={sub._id} className={`p-4 pr-5 rounded-lg shadow-md flex items-center ${theme === 'dark' ? 'bg-gray-600' : 'bg-white'}`}>
                                             {sub.avatar && (
                                                 <Image
                                                     src={sub.avatar}
@@ -403,7 +421,7 @@ export default function UserProfile() {
                                                     className="rounded-full mr-4"
                                                 />
                                             )}
-                                            <span className='mr-4'>{sub.username}</span>
+                                            <span className={`mr-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{sub.username}</span>
                                             <SubscribeButton
                                                 userEmail={sub.email}
                                                 currentUserEmail={user.email}
@@ -412,7 +430,7 @@ export default function UserProfile() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p className='font-bold'>У вас нет подписок.</p>
+                                    <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>У вас нет подписок.</p>
                                 )}
                             </div>
                         </div>
@@ -421,23 +439,23 @@ export default function UserProfile() {
 
                 {activeTab === 'posts' && (
                     <div>
-                        <h2 className="text-xl font-bold mb-2">Мои посты</h2>
-                        <div className="flex flex-nowrap gap-2 justify-start">
-                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-auto items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                        <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Мои посты</h2>
+                        <div className="flex flex-nowrap gap-2 justify-center">
+                            <div role="tablist" aria-orientation="horizontal" className={`max-h-96 overflow-auto items-center rounded-md inline-flex w-auto justify-start p-5 gap-10 ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`} tabIndex={0} style={{ outline: 'none' }}>
                                 {userPosts.length > 0 ? (
                                     userPosts.map((post) => (
-                                        <div key={post._id} className="min-w-96 bg-white p-4 rounded-lg shadow-md flex items-center">
+                                        <div key={post._id} className={`min-w-96 p-4 rounded-lg shadow-md flex items-center ${theme === 'dark' ? 'bg-gray-600' : 'bg-white'}`}>
                                             <div className="mr-4">
-                                                <h3 className="font-bold">{post.title}</h3>
-                                                <p><strong>Описание:</strong> {post.description.length > 100 ? 
+                                                <h3 className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{post.title}</h3>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Описание:</strong> {post.description.length > 100 ? 
                                                     `${post.description.substring(0, 100)}...` : 
                                                     post.description}
                                                 </p>
-                                                <p><strong>Категория:</strong> {post.category}</p>
-                                                <p><strong>Дата создания:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
-                                                <p><strong>Комментарии:</strong> {post.status}</p>
-                                                <p><strong>Лайки:</strong> {post.likeCount}</p>
-                                                <p><strong>Комментарии:</strong> {post.comments.length}</p>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Категория:</strong> {post.category}</p>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Дата создания:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Комментарии:</strong> {post.status}</p>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Лайки:</strong> {post.likeCount}</p>
+                                                <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}><strong>Комментарии:</strong> {post.comments.length}</p>
                                                 <div className="flex space-x-2 mt-2">
                                                     <button className="text-blue-500" onClick={() => handleOpenEditPostModal(post)}>
                                                         <EditIcon />
@@ -450,7 +468,7 @@ export default function UserProfile() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p className='font-bold'>У вас нет постов.</p>
+                                    <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>У вас нет постов.</p>
                                 )}
                             </div>
                         </div>
@@ -459,15 +477,15 @@ export default function UserProfile() {
 
                 {activeTab === 'notifications' && (
                     <div>
-                        <h2 className="text-xl font-bold mb-2">Мои уведомления</h2>
-                        <div className="flex flex-nowrap gap-2 justify-start">
-                            <div role="tablist" aria-orientation="horizontal" className="max-h-96 overflow-x-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-auto justify-start p-5 gap-10" tabIndex={0} style={{ outline: 'none' }}>
+                        <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Мои уведомления</h2>
+                        <div className="flex flex-nowrap gap-2 justify-center">
+                            <div role="tablist" aria-orientation="horizontal" className={`max-h-96 overflow-x-hidden items-center rounded-md inline-flex w-auto justify-start p-5 gap-10 ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`} tabIndex={0} style={{ outline: 'none' }}>
                                 {user.notifications && user.notifications.length > 0 ? (
                                     <div className="space-y-4">
                                         {user.notifications.map((notification, index) => (
-                                            <div key={index} className="bg-white p-4 rounded-lg shadow-md w-full relative">
+                                            <div key={index} className={`p-4 rounded-lg shadow-md w-full relative ${theme === 'dark' ? 'bg-gray-600' : 'bg-white'}`}>
                                                 <div className='flex justify-between gap-2'>
-                                                    <p className="font-medium">{notification.message} {new Date(notification.createdAt).toLocaleString('ru-RU', {
+                                                    <p className={`font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`}>{notification.message} {new Date(notification.createdAt).toLocaleString('ru-RU', {
                                                         year: 'numeric',
                                                         month: 'long',
                                                         day: 'numeric',
@@ -486,7 +504,7 @@ export default function UserProfile() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className='font-bold'>У вас нет уведомлений.</p>
+                                    <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>У вас нет уведомлений.</p>
                                 )}
                             </div>
                         </div>

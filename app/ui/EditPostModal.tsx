@@ -5,7 +5,7 @@ import { Modal, Box, TextField, FormControl, InputLabel, Select, MenuItem } from
 import Cookies from 'js-cookie';
 import CloseIcon from '@mui/icons-material/Close';
 import { categories } from '@/app/lib/nav-categories';
-
+import { useThemeStore } from '@/app/lib/ThemeStore';
 interface Post {
     _id: string;
     title: string;
@@ -35,7 +35,7 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    const { theme } = useThemeStore();
     // Инициализация данных при открытии модального окна
     useEffect(() => {
         if (isOpen && post) {
@@ -129,7 +129,7 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     width: 400,
-                    bgcolor: 'background.paper',
+                    bgcolor: theme === 'dark' ? '#0f141c' : 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
@@ -138,7 +138,7 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                 }}
             >
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-bold text-lg">Редактировать пост</h2>
+                    <h2 className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : ''}`}>Редактировать пост</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -159,49 +159,67 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit}>
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Заголовок"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
-                        />
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Краткое описание"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            required
-                        />
-                        <FormControl fullWidth>
-                            <InputLabel id="category-select-label">Категория</InputLabel>
-                            <Select
-                                labelId="category-select-label"
-                                id="category-select"
-                                value={category}
-                                label="Категория"
-                                onChange={(e) => setCategory(e.target.value)}
-                                required
-                            >
-                                {categories.map((cat) => (
-                                    <MenuItem key={cat.name} value={cat.name}>
-                                        {cat.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Текст поста"
-                            multiline
-                            rows={4}
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            required
-                        />
+                        <div className="flex flex-col space-y-4">
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Заголовок
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Введите заголовок"
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Краткое описание
+                                </label>
+                                <input
+                                    type="text"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    placeholder="Введите краткое описание"
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Категория
+                                </label>
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    required
+                                >
+                                    {categories.map((cat) => (
+                                        <option key={cat.name} value={cat.name}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className={`mb-2 font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
+                                    Текст поста
+                                </label>
+                                <textarea
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    className={`w-full px-4 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    rows={4}
+                                    placeholder="Введите текст поста"
+                                    required
+                                />
+                            </div>
+                        </div>
                         <div className="mt-4">
                             <label
                                 className={`flex items-center justify-center w-full p-3 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
@@ -209,7 +227,7 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                                 }`}
                             >
                                 <div className="flex flex-col items-center space-y-2">
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : ''}`}>
                                         {imagePreview ? 'Изображение выбрано' : 'Загрузить изображение'}
                                     </span>
                                     {imagePreview && (
@@ -233,7 +251,7 @@ export default function EditPostModal({ isOpen, onClose, post, onPostUpdated }: 
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3"
+                                className={`bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition-colors duration-200 mr-3 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600 text-white' : ''}`}
                             >
                                 Отмена
                             </button>
