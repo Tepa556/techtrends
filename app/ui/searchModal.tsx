@@ -124,7 +124,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                             results.map((result) => (
                                 <div key={result._id} className={`flex items-start p-3 rounded-lg ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} cursor-pointer transition-colors`}>
                                     <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 mr-3">
-                                        <img src={result.imageUrl || "/placeholder-image.jpg"} alt={result.title} className="w-full h-full object-cover" />
+                                        <img src={result.imageUrl || "/post-back/placeholder-image.jpg"} alt={result.title} className="w-full h-full object-cover" />
                                     </div>
                                     <div>
                                         <h4 className={`font-medium line-clamp-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{result.title}</h4>

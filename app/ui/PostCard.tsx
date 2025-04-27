@@ -65,7 +65,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, featured = false }) => {
       <Link href={`/post/${post._id}`} className="block hover:opacity-95 transition-opacity cursor-pointer">
         <div className="relative w-full h-56">
           <Image
-            src={post.imageUrl || '/placeholder-image.jpg'}
+            src={post.imageUrl || "/post-back/placeholder-image.jpg"}
             alt={post.title}
             fill
             style={{ objectFit: 'cover' }}

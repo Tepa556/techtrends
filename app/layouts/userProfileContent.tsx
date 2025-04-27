@@ -219,7 +219,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                           >
                             <div className="relative w-full h-56 ">
                               <Image
-                                src={post.imageUrl || '/placeholder-image.jpg'}
+                                src={post.imageUrl || ''}
                                 alt={post.title}
                                 fill
                                 style={{ objectFit: 'cover' }}
