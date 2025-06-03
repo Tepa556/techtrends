@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import GoogleAnalytics from "./components/GoogleAnalytics";
+import YandexMetrica from "./components/YandexMetrica";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,35 +15,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NODE_ENV === 'production' 
+      ? 'https://techtrends-cyan.vercel.app' 
+      : 'http://localhost:3000'
+  ),
   title: {
     template: '%s | TechTrends',
     default: 'TechTrends - Технологические тренды и инновации',
   },
   description: "Актуальные технологические тренды, новости и аналитика о разработке, ИИ и технологиях",
   keywords: ["технологии", "программирование", "разработка", "инновации", "искусственный интеллект", "веб-разработка"],
-  authors: [{ name: "TechTrends Team" }],
-  openGraph: {
-    type: 'website',
-    locale: 'ru_RU',
-    url: 'https://techtrends.ru',
-    siteName: 'TechTrends',
-    title: 'TechTrends - Технологические тренды и инновации',
-    description: 'Актуальные технологические тренды, новости и аналитика',
-    images: [
-      {
-        url: '/logo/logo-og.png',
-        width: 1200,
-        height: 630,
-        alt: 'TechTrends',
-      }
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TechTrends - Технологические тренды',
-    description: 'Актуальные технологические тренды, новости и аналитика',
-    images: ['/logo/logo-twitter.png'],
-  },
   robots: {
     index: true,
     follow: true,
@@ -62,6 +46,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        
+        {/* Аналитика - только в продакшене */}
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            {process.env.NEXT_PUBLIC_GA_ID && (
+              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+            )}
+            {process.env.NEXT_PUBLIC_YM_ID && (
+              <YandexMetrica ymId={process.env.NEXT_PUBLIC_YM_ID} />
+            )}
+          </>
+        )}
       </body>
     </html>
   );

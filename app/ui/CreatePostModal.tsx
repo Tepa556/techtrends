@@ -25,7 +25,7 @@ const style = {
 export default function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('Веб-разработка');
     const [text, setText] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);

@@ -1,6 +1,5 @@
 "use client"
 import React from 'react';
-import Image from 'next/image';
 import Head from 'next/head';
 import Header from '../layouts/header';
 import Footer from '../layouts/footer';
@@ -23,14 +22,14 @@ export default function AboutPage() {
           <h1 className={`text-4xl font-bold mb-8 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>О проекте TechTrends</h1>
               
           <div className={`prose prose-lg max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}>
-            <h2 className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Наша миссия</h2>
+            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Наша миссия</h2>
             <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
               TechTrends был создан с целью помочь людям ориентироваться в быстро меняющемся мире 
               технологий. Наша миссия — предоставлять точную, своевременную и доступную информацию 
               о последних технологических трендах, инновациях и их влиянии на общество.
             </p>
             
-            <h2 className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Кто мы</h2>
+            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Кто мы</h2>
             <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
               Мы команда технологических энтузиастов, программистов, аналитиков и журналистов, 
               объединенных общей страстью к инновациям. Каждый член нашей команды специализируется 
@@ -38,7 +37,7 @@ export default function AboutPage() {
               от искусственного интеллекта и больших данных до веб-разработки и кибербезопасности.
             </p>
             
-            <h2 className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Наши ценности</h2>
+            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Наши ценности</h2>
             <ul className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
               <li><strong>Достоверность</strong>: Мы тщательно проверяем все факты перед публикацией.</li>
               <li><strong>Доступность</strong>: Мы стремимся объяснять сложные технические концепции простым языком.</li>

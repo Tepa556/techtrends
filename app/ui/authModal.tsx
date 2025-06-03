@@ -7,7 +7,7 @@ interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
     onLogin: (email: string, password: string) => Promise<void>;
-    onRegister: (username: string, email: string, password: string) => Promise<void>;
+    onRegister: (username: string, email: string, password: string, phone: string) => Promise<void>;
     error: string | null;
     onOpenRegister: () => void; 
 }

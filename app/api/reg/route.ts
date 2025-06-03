@@ -9,9 +9,9 @@
 
     // Экспортируем именованную функцию для POST-запроса
     export async function POST(req: NextRequest) {
-        const { username, email, password } = await req.json();
+        const { username, email, password, phone } = await req.json();
 
-        if (!username || !email || !password) {
+        if (!username || !email || !password || !phone) {
             return NextResponse.json({ error: 'Все поля обязательны для заполнения' }, { status: 400 });
         }
 
@@ -40,6 +40,7 @@
                 username,
                 email,
                 password: hashedPassword,
+                phone,
                 avatar:"/user-avatar/default-avatar.jpg",
                 subscribers:[],
                 subscriptions: [], 

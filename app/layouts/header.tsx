@@ -119,14 +119,14 @@ export default function Header() {
         }
     };
 
-    const handleRegister = async (username: string, email: string, password: string) => {
+    const handleRegister = async (username: string, email: string, password: string, phone: string) => {
         try {
             const response = await fetch('/api/reg', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ username, email, password, phone }),
             });
 
             if (!response.ok) {

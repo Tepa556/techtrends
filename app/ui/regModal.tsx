@@ -9,7 +9,7 @@ import { useThemeStore } from '../lib/ThemeStore';
 interface RegModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onRegister: (username: string, email: string, password: string) => Promise<void>;
+    onRegister: (username: string, email: string, password: string, phone: string) => Promise<void>;
     error: string | null;
     onOpenLogin: () => void;
 }
@@ -23,6 +23,28 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
     const [isLoading, setIsLoading] = useState(false);
     const [privacyAccepted, setPrivacyAccepted] = useState(false);
     const { theme } = useThemeStore();
+    const [phone, setPhone] = useState('');
+
+    const formatPhoneNumber = (value: string) => {
+        // Удаляем все символы кроме цифр
+        const phoneNumber = value.replace(/\D/g, '');
+        
+        // Ограничиваем до 11 цифр (включая код страны)
+        const truncated = phoneNumber.slice(0, 11);
+        
+        // Форматируем в зависимости от длины
+        if (truncated.length === 0) return '';
+        if (truncated.length <= 1) return `+7`;
+        if (truncated.length <= 4) return `+7 (${truncated.slice(1)}`;
+        if (truncated.length <= 7) return `+7 (${truncated.slice(1, 4)}) ${truncated.slice(4)}`;
+        if (truncated.length <= 9) return `+7 (${truncated.slice(1, 4)}) ${truncated.slice(4, 7)}-${truncated.slice(7)}`;
+        return `+7 (${truncated.slice(1, 4)}) ${truncated.slice(4, 7)}-${truncated.slice(7, 9)}-${truncated.slice(9, 11)}`;
+    };
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhoneNumber(e.target.value);
+        setPhone(formatted);
+    };
 
     const validateUsername = (username: string): boolean => {
         return username.length >= 3 && username.length <= 20 && /^[a-zA-Z0-9_]+$/.test(username);
@@ -42,7 +64,7 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
             return;
         }
         
-        if (!email || !password || !username) {
+        if (!email || !password || !username || !phone) {
             setFormError('Все поля обязательны для заполнения');
             return;
         }
@@ -54,7 +76,7 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
         
         setIsLoading(true);
         try {
-            await onRegister(username, email, password);
+            await onRegister(username, email, password, phone);
         } finally {
             setIsLoading(false);
         }
@@ -184,6 +206,35 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                                     placeholder="Подтвердите пароль"
                                     required
                                 />
+                            </div>
+
+                            <div className="relative">
+                                <label 
+                                    htmlFor="phone"
+                                    className={`block mb-2 text-sm font-medium ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Номер телефона
+                                </label>
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    value={phone}
+                                    onChange={handlePhoneChange}
+                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                        theme === 'dark' 
+                                            ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500' 
+                                            : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors`}
+                                    placeholder="+7 (999) 999-99-99"
+                                    required
+                                />
+                                <p className={`mt-1 text-xs ${
+                                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                                }`}>
+                                    Российский номер телефона
+                                </p>
                             </div>
                         </div>
                         <FormControlLabel

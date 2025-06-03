@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import Link from 'next/link';
 import Favorite from '@mui/icons-material/Favorite';
 import Message from '@mui/icons-material/Message';
+import { useThemeStore } from '@/app/lib/ThemeStore';
 
 interface User {
   _id: string;
@@ -36,6 +37,7 @@ interface UserProfileContentProps {
 }
 
 export default function UserProfileContent({ userId }: UserProfileContentProps) {
+  const { theme } = useThemeStore();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,36 +111,36 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
     <div className="animate-pulse">
       <div className="flex flex-col md:flex-row items-center md:items-start mb-8">
         <div className="mb-4 md:mb-0 md:mr-6">
-          <div className="w-24 h-24 bg-gray-300 rounded-full"></div>
+          <div className={`w-24 h-24 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded-full`}></div>
         </div>
         <div className="w-full">
-          <div className="h-8 bg-gray-300 rounded w-48 mb-2"></div>
-          <div className="h-4 bg-gray-300 rounded w-32 mb-2"></div>
-          <div className="h-4 bg-gray-300 rounded w-32 mb-4"></div>
-          <div className="h-10 bg-gray-300 rounded w-40"></div>
+          <div className={`h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-48 mb-2`}></div>
+          <div className={`h-4 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-32 mb-2`}></div>
+          <div className={`h-4 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-32 mb-4`}></div>
+          <div className={`h-10 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-40`}></div>
         </div>
       </div>
-      <div className="h-6 bg-gray-300 rounded w-32 mb-4"></div>
+      <div className={`h-6 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-32 mb-4`}></div>
       <div className="flex overflow-x-auto pb-2 mb-4">
         {[1, 2, 3].map((_, i) => (
-          <div key={i} className="h-8 bg-gray-300 rounded w-24 mr-2"></div>
+          <div key={i} className={`h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-24 mr-2`}></div>
         ))}
       </div>
-      <div className="h-96 bg-gray-200 rounded-lg"></div>
+      <div className={`h-96 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-lg`}></div>
     </div>
   );
 
   // Компонент Skeleton для постов
   const PostsSkeleton = () => (
     <div className="grid grid-cols-1 gap-6 animate-pulse">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="h-48 bg-gray-300"></div>
+      <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden`}>
+        <div className={`h-48 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
         <div className="p-4">
-          <div className="h-6 bg-gray-300 rounded mb-2"></div>
-          <div className="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
+          <div className={`h-6 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded mb-2`}></div>
+          <div className={`h-4 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-3/4 mb-4`}></div>
           <div className="flex justify-between items-center">
-            <div className="h-4 bg-gray-300 rounded w-20"></div>
-            <div className="h-4 bg-gray-300 rounded w-20"></div>
+            <div className={`h-4 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-20`}></div>
+            <div className={`h-4 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'} rounded w-20`}></div>
           </div>
         </div>
       </div>
@@ -147,9 +149,9 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
-          <div className="text-center text-red-500 font-medium py-8 bg-red-50 rounded-lg">
+      <div className={`flex items-center justify-center min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`w-full max-w-4xl p-6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md`}>
+          <div className={`text-center text-red-500 font-medium py-8 ${theme === 'dark' ? 'bg-red-900/20' : 'bg-red-50'} rounded-lg`}>
             {error}
           </div>
         </div>
@@ -158,8 +160,8 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
+    <div className={`flex items-center justify-center min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`w-full max-w-4xl p-6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md`}>
         {isLoading ? (
           <ProfileSkeleton />
         ) : user ? (
@@ -175,14 +177,14 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                     className="rounded-full" 
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 text-xl">{user.username.charAt(0).toUpperCase()}</span>
+                  <div className={`w-24 h-24 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full flex items-center justify-center`}>
+                    <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-xl`}>{user.username.charAt(0).toUpperCase()}</span>
                   </div>
                 )}
               </div>
               <div className="text-center md:text-left">
-                <h1 className="text-2xl font-bold mb-2">{user.username}</h1>
-                <div className="text-gray-600 mb-4">
+                <h1 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{user.username}</h1>
+                <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
                   <p>Подписчиков: {user.subscribers?.length || 0}</p>
                   <p>Подписок: {user.subscriptions?.length || 0}</p>
                 </div>
@@ -196,7 +198,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
             </div>
             
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4 text-center border-b pb-3">Публикации пользователя</h2>
+              <h2 className={`text-2xl font-bold mb-4 text-center border-b pb-3 ${theme === 'dark' ? 'text-white border-gray-600' : 'text-gray-900 border-gray-200'}`}>Публикации пользователя</h2>
               
               {isLoading ? (
                 <PostsSkeleton />
@@ -206,7 +208,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                     <div 
                       role="tablist" 
                       aria-orientation="horizontal" 
-                      className="min-h-30 overflow-y-hidden items-center rounded-md bg-gray-200 text-gray-700 inline-flex w-full justify-start p-5 gap-10" 
+                      className={`min-h-30 overflow-y-hidden items-center rounded-md ${theme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'} inline-flex w-full justify-start p-5 gap-10`} 
                       tabIndex={0} 
                       style={{ outline: 'none' }}
                     >
@@ -215,7 +217,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                           <Link 
                             key={post._id} 
                             href={`/post/${post._id}`} 
-                            className="min-w-96 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transform transition-transform duration-300 hover:-translate-y-2"
+                            className={`min-w-96 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden hover:shadow-lg transform transition-transform duration-300 hover:-translate-y-2`}
                           >
                             <div className="relative w-full h-56 ">
                               <Image
@@ -230,10 +232,10 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                               </div>
                             </div>
                             <div className="p-4">
-                              <h3 className="text-xl font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                              <h3 className={`text-xl font-semibold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'} mb-2 transition-colors`}>
                                 {post.title}
                               </h3>
-                              <p className="text-gray-600 mb-4 line-clamp-2">{post.description}</p>
+                              <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-4 line-clamp-2`}>{post.description}</p>
                               <div className="flex justify-between items-center">
                                 <div className="flex items-center">
                                   <div className="relative w-8 h-8 mr-2">
@@ -246,11 +248,11 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                                     />
                                   </div>
                                   <div>
-                                    <span className="font-medium text-gray-800">{post.author}</span>
-                                    <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                                    <span className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{post.author}</span>
+                                    <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{new Date(post.createdAt).toLocaleDateString()}</p>
                                   </div>
                                 </div>
-                                <div className="flex items-center text-sm text-gray-500">
+                                <div className={`flex items-center text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                                   <span className="flex items-center ml-3">
                                     <Favorite className="h-4 w-4 mr-1 text-red-500" />{post.likeCount || 0}
                                   </span>
@@ -263,17 +265,17 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                           </Link>
                         ))
                       ) : (
-                        <p className='font-bold'>У пользователя нет постов.</p>
+                        <p className={`font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>У пользователя нет постов.</p>
                       )}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 bg-gray-100 rounded-lg shadow-sm">
-                  <p className="text-gray-600 font-medium text-xl">
+                <div className={`text-center py-12 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg shadow-sm`}>
+                  <p className={`${theme === 'dark' ? 'text-gray-200' : 'text-gray-600'} font-medium text-xl`}>
                     У пользователя пока нет публикаций
                   </p>
-                  <p className="text-gray-500 mt-2">
+                  <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
                     Заходите позже, чтобы увидеть новые публикации
                   </p>
                 </div>
