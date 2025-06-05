@@ -35,8 +35,29 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
         }
 
-        // Ищем посты по username пользователя
-        const userPosts = await postsCollection.find({ author: user.username }).toArray();
+        // Ищем посты по username пользователя с сортировкой по популярности
+        const userPosts = await postsCollection.aggregate([
+            // Фильтруем посты по автору
+            { 
+                $match: { 
+                    author: user.username 
+                } 
+            },
+            // Добавляем поле с количеством комментариев
+            { 
+                $addFields: { 
+                    commentsCount: { $size: { $ifNull: ["$comments", []] } }
+                } 
+            },
+            // Сортируем по лайкам, комментариям и дате
+            { 
+                $sort: { 
+                    likeCount: -1,     // Сначала по количеству лайков (по убыванию)
+                    commentsCount: -1, // Потом по количеству комментариев (по убыванию)
+                    createdAt: -1      // Затем по дате создания (по убыванию)
+                } 
+            }
+        ]).toArray();
         await client.close();
 
         return NextResponse.json(userPosts, { status: 200 });

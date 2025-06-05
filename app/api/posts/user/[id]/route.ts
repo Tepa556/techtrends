@@ -52,11 +52,30 @@ export async function GET(
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
 
-    // Получаем посты пользователя по его username
+    // Получаем посты пользователя по его username с сортировкой по популярности
     const postsCollection = database.collection('posts');
-    const posts = await postsCollection.find({ 
-      author: user.username 
-    }).toArray();
+    const posts = await postsCollection.aggregate([
+      // Фильтруем посты по автору
+      { 
+        $match: { 
+          author: user.username 
+        } 
+      },
+      // Добавляем поле с количеством комментариев
+      { 
+        $addFields: { 
+          commentsCount: { $size: { $ifNull: ["$comments", []] } }
+        } 
+      },
+      // Сортируем по лайкам, комментариям и дате
+      { 
+        $sort: { 
+          likeCount: -1,     // Сначала по количеству лайков (по убыванию)
+          commentsCount: -1, // Потом по количеству комментариев (по убыванию)
+          createdAt: -1      // Затем по дате создания (по убыванию)
+        } 
+      }
+    ]).toArray();
     
     await client.close();
 

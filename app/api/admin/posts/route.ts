@@ -27,8 +27,23 @@ export async function GET(req: NextRequest) {
         const database = client.db('local');
         const postsCollection = database.collection('posts');
 
-        // Получаем все посты
-        const posts = await postsCollection.find().toArray();
+        // Получаем все посты с сортировкой по популярности
+        const posts = await postsCollection.aggregate([
+            // Добавляем поле с количеством комментариев
+            { 
+                $addFields: { 
+                    commentsCount: { $size: { $ifNull: ["$comments", []] } }
+                } 
+            },
+            // Сортируем по лайкам, комментариям и дате
+            { 
+                $sort: { 
+                    likeCount: -1,     // Сначала по количеству лайков (по убыванию)
+                    commentsCount: -1, // Потом по количеству комментариев (по убыванию)
+                    createdAt: -1      // Затем по дате создания (по убыванию)
+                } 
+            }
+        ]).toArray();
         await client.close();
 
         return NextResponse.json({ posts }, { status: 200 });

@@ -13,8 +13,25 @@ export async function GET() {
         const database = client.db('local');
         const collection = database.collection('posts');
 
-        // Fetch data from the collection
-        const posts = await collection.find({}).toArray();
+        // Используем агрегацию для сортировки по количеству лайков и комментариев
+        const posts = await collection.aggregate([
+            // Фильтруем только опубликованные посты
+            { $match: { status: 'Опубликован' } },
+            // Добавляем поле с количеством комментариев
+            { 
+                $addFields: { 
+                    commentsCount: { $size: { $ifNull: ["$comments", []] } }
+                } 
+            },
+            // Сортируем по лайкам, комментариям и дате
+            { 
+                $sort: { 
+                    likeCount: -1,     // Сначала по количеству лайков (по убыванию)
+                    commentsCount: -1, // Потом по количеству комментариев (по убыванию)
+                    createdAt: -1      // Затем по дате создания (по убыванию)
+                } 
+            }
+        ]).toArray();
 
         // Modify URLs of images - просто добавляем префикс /post-back/
         const modifiedPosts = posts.map(post => ({
