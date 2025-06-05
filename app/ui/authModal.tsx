@@ -1,22 +1,23 @@
 "use client"
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useThemeStore } from '../lib/ThemeStore';
+
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
     onLogin: (email: string, password: string) => Promise<void>;
-    onRegister: (username: string, email: string, password: string, phone: string) => Promise<void>;
     error: string | null;
     onOpenRegister: () => void; 
 }
 
-export default function AuthModal({ isOpen, onClose, onLogin, onRegister, error, onOpenRegister }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onLogin, error, onOpenRegister }: AuthModalProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { theme } = useThemeStore();
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);

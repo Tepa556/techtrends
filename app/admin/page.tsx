@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
-import Link from 'next/link';
 import RejectPostModal from '../ui/RejectPostModal';
 import PostDetailsModal from '../ui/PostDetailsModal';
 import { useThemeStore } from '../lib/ThemeStore';
+
 // Типы данных для постов
 interface Post {
     _id: string;
@@ -31,7 +31,6 @@ const POST_STATUS = {
 export default function AdminDashboard() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('all'); 
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -39,6 +38,7 @@ export default function AdminDashboard() {
     const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
     const router = useRouter();
     const { theme } = useThemeStore();
+    
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -59,12 +59,11 @@ export default function AdminDashboard() {
                 throw new Error('Ошибка при загрузке постов');
             }
 
-            const data = await response.json();
-            console.log(data.imageUrl)
-            setPosts(data.posts);
-        } catch (error) {
-            setError('Ошибка при загрузке постов');
-            console.error(error);
+            const responseData = await response.json();
+            console.log(responseData.imageUrl)
+            setPosts(responseData.posts);
+        } catch (err) {
+            console.error('Ошибка при загрузке постов:', err);
         } finally {
             setLoading(false);
         }
@@ -95,7 +94,7 @@ export default function AdminDashboard() {
                 throw new Error('Ошибка при публикации поста');
             }
 
-            const data = await response.json();
+            await response.json();
             
             // Обновляем состояние
             setPosts(prevPosts => 
@@ -110,8 +109,8 @@ export default function AdminDashboard() {
             }
             
             alert('Пост успешно опубликован');
-        } catch (error) {
-            console.error('Ошибка при публикации поста:', error);
+        } catch (err) {
+            console.error('Ошибка при публикации поста:', err);
             alert('Ошибка при публикации поста');
         } finally {
             setStatusUpdateLoading(false);
@@ -156,8 +155,8 @@ export default function AdminDashboard() {
             setSelectedPost(null);
             
             alert('Пост отклонен');
-        } catch (error) {
-            console.error('Ошибка при отклонении поста:', error);
+        } catch (err) {
+            console.error('Ошибка при отклонении поста:', err);
             alert('Ошибка при отклонении поста');
         } finally {
             setStatusUpdateLoading(false);
@@ -173,7 +172,6 @@ export default function AdminDashboard() {
     const filteredPosts = activeTab === 'all' 
         ? posts 
         : posts.filter(post => post.status === activeTab);
-
 
     return (
         <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
