@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken';
 import Link from 'next/link';
 import Favorite from '@mui/icons-material/Favorite';
 import Message from '@mui/icons-material/Message';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useThemeStore } from '@/app/lib/ThemeStore';
 
 interface User {
@@ -40,10 +42,38 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
   const { theme } = useThemeStore();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [activePostIndex, setActivePostIndex] = useState(0);
+
+  // Функция фильтрации постов
+  const filterPosts = (posts: Post[], query: string) => {
+    if (!query.trim()) {
+      return posts;
+    }
+    
+    const searchTerm = query.toLowerCase().trim();
+    return posts.filter(post => 
+      post.title.toLowerCase().includes(searchTerm) ||
+      post.description.toLowerCase().includes(searchTerm) ||
+      post.category.toLowerCase().includes(searchTerm)
+    );
+  };
+
+  // Обработчик изменения поискового запроса
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setFilteredPosts(filterPosts(posts, query));
+  };
+
+  // Очистка поиска
+  const clearSearch = () => {
+    setSearchQuery('');
+    setFilteredPosts(posts);
+  };
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -88,6 +118,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
         const postsData = await postsResponse.json();
         const publishedPosts = postsData.filter((post: Post) => post.status === 'Опубликован');
         setPosts(publishedPosts);
+        setFilteredPosts(publishedPosts);
       } catch (error: any) {
         console.error('Ошибка при загрузке данных:', error);
         setError(error.message || 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.');
@@ -200,26 +231,63 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
             <div className="mb-8">
               <h2 className={`text-2xl font-bold mb-4 text-center border-b pb-3 ${theme === 'dark' ? 'text-white border-gray-600' : 'text-gray-900 border-gray-200'}`}>Публикации пользователя</h2>
               
+              {/* Поле поиска */}
+              {posts.length > 0 && (
+                <div className="mb-6">
+                  <div className={`relative max-w-md mx-auto ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <div className="relative">
+                      <SearchIcon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} h-5 w-5`} />
+                      <input
+                        type="text"
+                        placeholder="Поиск по статьям..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className={`w-full pl-10 pr-10 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                          theme === 'dark' 
+                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        }`}
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={clearSearch}
+                          className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                        >
+                          <ClearIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Результаты поиска */}
+                  {searchQuery && (
+                    <div className={`text-center mt-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <p className="text-sm">
+                        {filteredPosts.length === 0 
+                          ? `Не найдено статей по запросу "${searchQuery}"` 
+                          : `Найдено ${filteredPosts.length} ${filteredPosts.length === 1 ? 'статья' : filteredPosts.length <= 4 ? 'статьи' : 'статей'} по запросу "${searchQuery}"`
+                        }
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {isLoading ? (
                 <PostsSkeleton />
               ) : posts.length > 0 ? (
-                <div>
-                  <div className="flex w-full overflow-x-auto">
-                    <div 
-                      role="tablist" 
-                      aria-orientation="horizontal" 
-                      className={`min-h-30 overflow-y-hidden items-center rounded-md ${theme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'} inline-flex w-full justify-start p-5 gap-10`} 
-                      tabIndex={0} 
-                      style={{ outline: 'none' }}
-                    >
-                      {posts.length > 0 ? (
-                        posts.map((post) => (
+                filteredPosts.length > 0 ? (
+                  <div>
+                    {/* Упрощенная горизонтальная прокрутка без растягивания */}
+                    <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-md p-5 overflow-x-auto`}>
+                      <div className="flex gap-6" style={{ width: 'max-content' }}>
+                        {filteredPosts.map((post) => (
                           <Link 
                             key={post._id} 
                             href={`/post/${post._id}`} 
-                            className={`min-w-96 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden hover:shadow-lg transform transition-transform duration-300 hover:-translate-y-2`}
+                            className={`w-96 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden hover:shadow-lg transform transition-transform duration-300 hover:-translate-y-2`}
                           >
-                            <div className="relative w-full h-56 ">
+                            <div className="relative w-full h-56">
                               <Image
                                 src={post.imageUrl || ''}
                                 alt={post.title}
@@ -263,13 +331,20 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                               </div>
                             </div>
                           </Link>
-                        ))
-                      ) : (
-                        <p className={`font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>У пользователя нет постов.</p>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className={`text-center py-12 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg shadow-sm`}>
+                    <p className={`${theme === 'dark' ? 'text-gray-200' : 'text-gray-600'} font-medium text-xl`}>
+                      {searchQuery ? `По запросу "${searchQuery}" ничего не найдено` : 'У пользователя пока нет публикаций'}
+                    </p>
+                    <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
+                      {searchQuery ? 'Попробуйте изменить поисковый запрос' : 'Заходите позже, чтобы увидеть новые публикации'}
+                    </p>
+                  </div>
+                )
               ) : (
                 <div className={`text-center py-12 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg shadow-sm`}>
                   <p className={`${theme === 'dark' ? 'text-gray-200' : 'text-gray-600'} font-medium text-xl`}>
@@ -290,4 +365,4 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
 
 // Необходимо добавить в глобальные стили для анимации fade-in
 // @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-// .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; } 
+// .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }

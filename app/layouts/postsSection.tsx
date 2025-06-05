@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import PostCard from '@/app/ui/PostCard';
 import { Favorite, Message } from '@mui/icons-material';
 import { useThemeStore } from '../lib/ThemeStore';
+
 interface Post {
     _id: string;
     title: string;
@@ -18,52 +19,33 @@ interface Post {
 }
 
 const PostsSection = () => {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [latestPost, setLatestPost] = useState<Post | null>(null);
-    const [otherPosts, setOtherPosts] = useState<Post[]>([]);
+    const [recentPosts, setRecentPosts] = useState<Post[]>([]); // 3 поста разных категорий
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { theme } = useThemeStore();
+
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchRecentPosts = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch('/api/posts');
+                const response = await fetch('/api/posts/recent');
                 
                 if (!response.ok) {
-                    throw new Error('Не удалось загрузить посты');
+                    throw new Error('Не удалось загрузить последние публикации');
                 }
                 
                 const data = await response.json();
-                // Проверяем структуру данных
-                const postsArray = Array.isArray(data) ? data : (data.posts || []);
-                const publishedPosts = postsArray.filter((post: Post) => post.status === 'Опубликован');
+                setRecentPosts(data || []);
                 
-                if (publishedPosts.length > 0) {
-                    // Сортируем по дате создания (от новых к старым)
-                    const sortedPosts = [...publishedPosts].sort((a, b) => 
-                        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                    );
-                    
-                    // Выделяем самый новый пост
-                    setLatestPost(sortedPosts[0]);
-                    // Остальные посты
-                    setOtherPosts(sortedPosts.slice(1));
-                    setPosts(sortedPosts);
-                } else {
-                    setPosts([]);
-                    setLatestPost(null);
-                    setOtherPosts([]);
-                }
             } catch (err) {
-                console.error('Ошибка при загрузке постов:', err);
-                setError(err instanceof Error ? err.message : 'Произошла ошибка при загрузке постов');
+                console.error('Ошибка при загрузке последних публикаций:', err);
+                setError(err instanceof Error ? err.message : 'Произошла ошибка при загрузке публикаций');
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchPosts();
+        fetchRecentPosts();
     }, []);
 
     // Скелетон для карточки
@@ -107,68 +89,42 @@ const PostsSection = () => {
         <section className={`py-12 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="container mx-auto px-4">
                 <h2 className={`text-3xl font-bold mb-8 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Последние публикации</h2>
+                <p className={`text-center mb-8 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Свежие статьи из разных категорий
+                </p>
                 
                 {isLoading ? (
-                    <div className="space-y-8">
-                        <PostCardSkeleton featured={true} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {[...Array(6)].map((_, index) => (
-                                <PostCardSkeleton key={index} />
-                            ))}
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(3)].map((_, index) => (
+                            <PostCardSkeleton key={index} />
+                        ))}
                     </div>
-                ) : posts.length === 0 ? (
+                ) : recentPosts.length === 0 ? (
                     <div className={`text-center py-12 bg-gray-100 rounded-lg shadow-sm ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
                         <p className={` font-medium text-xl ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`}>В данный момент нет опубликованных постов</p>
                         <p className={` mt-2 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`}>Заходите позже, чтобы увидеть новые публикации</p>
                     </div>
                 ) : (
                     <div>
-                        {latestPost && (
-                            <div className="mb-6">
-                                <h3 className={`text-xl flex justify-center mb-4 font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Новая публикация</h3>
-                                <div className="max-w-4xl mx-auto">
-                                    <PostCard 
-                                        post={{
-                                            _id: latestPost._id,
-                                            title: latestPost.title,
-                                            description: latestPost.description,
-                                            category: latestPost.category,
-                                            createdAt: latestPost.createdAt,
-                                            imageUrl: latestPost.imageUrl || '',
-                                            author: latestPost.author,
-                                            likeCount: latestPost.likeCount || 0,
-                                            comments: latestPost.comments?.length || 0
-                                        }} 
-                                        featured={true} 
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {otherPosts.length > 0 && (
-                            <div>
-                                <h3 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Недавние публикации</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {otherPosts.map(post => (
-                                        <PostCard 
-                                            key={post._id} 
-                                            post={{
-                                                _id: post._id,
-                                                title: post.title,
-                                                description: post.description,
-                                                category: post.category,
-                                                createdAt: post.createdAt,
-                                                imageUrl: post.imageUrl || '',
-                                                author: post.author,
-                                                likeCount: post.likeCount || 0,
-                                                comments: post.comments?.length || 0
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {recentPosts.map((post, index) => (
+                                <PostCard 
+                                    key={post._id} 
+                                    post={{
+                                        _id: post._id,
+                                        title: post.title,
+                                        description: post.description,
+                                        category: post.category,
+                                        createdAt: post.createdAt,
+                                        imageUrl: post.imageUrl || '',
+                                        author: post.author,
+                                        likeCount: post.likeCount || 0,
+                                        comments: post.comments?.length || 0
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    
                     </div>
                 )}
             </div>

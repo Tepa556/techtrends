@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import EditAccountModal from '@/app/ui/editAccountModal';
 import LogOutModal from "@/app/ui/logOutModal"
 import Cookies from 'js-cookie';
@@ -49,6 +51,8 @@ interface Post {
 export default function UserProfile() {
     const [user, setUser] = useState<User | null>(null);
     const [userPosts, setUserPosts] = useState<Post[]>([]);
+    const [filteredUserPosts, setFilteredUserPosts] = useState<Post[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [subscriptionUsers, setSubscriptionUsers] = useState<User[]>([]);
     const [activeTab, setActiveTab] = useState('posts');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -62,6 +66,33 @@ export default function UserProfile() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const { theme } = useThemeStore();
+
+    // Функция фильтрации постов
+    const filterPosts = (posts: Post[], query: string) => {
+        if (!query.trim()) {
+            return posts;
+        }
+        
+        const searchTerm = query.toLowerCase().trim();
+        return posts.filter(post => 
+            post.title.toLowerCase().includes(searchTerm) ||
+            post.description.toLowerCase().includes(searchTerm) ||
+            post.category.toLowerCase().includes(searchTerm)
+        );
+    };
+
+    // Обработчик изменения поискового запроса
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+        setFilteredUserPosts(filterPosts(userPosts, query));
+    };
+
+    // Очистка поиска
+    const clearSearch = () => {
+        setSearchQuery('');
+        setFilteredUserPosts(userPosts);
+    };
+
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -123,6 +154,7 @@ export default function UserProfile() {
             if (response.ok) {
                 const data = await response.json();
                 setUserPosts(data);
+                setFilteredUserPosts(data);
             } else {
                 console.error('Ошибка при получении постов пользователя');
             }
@@ -158,6 +190,7 @@ export default function UserProfile() {
     // Обработчик создания нового поста
     const handlePostCreated = (newPost: Post) => {
         setUserPosts(prevPosts => [newPost, ...prevPosts]);
+        setFilteredUserPosts(prevPosts => [newPost, ...prevPosts]);
     };
 
     // Обработчик обновления поста
@@ -167,11 +200,19 @@ export default function UserProfile() {
                 post._id === updatedPost._id ? updatedPost : post
             )
         );
+        setFilteredUserPosts(prevPosts =>
+            prevPosts.map(post =>
+                post._id === updatedPost._id ? updatedPost : post
+            )
+        );
     };
 
     // Обработчик удаления поста
     const handlePostDeleted = (deletedPostId: string) => {
         setUserPosts(prevPosts =>
+            prevPosts.filter(post => post._id !== deletedPostId)
+        );
+        setFilteredUserPosts(prevPosts =>
             prevPosts.filter(post => post._id !== deletedPostId)
         );
     };
@@ -278,6 +319,7 @@ export default function UserProfile() {
         try {
             // Немедленно удаляем пост из локального состояния
             setUserPosts(userPosts.filter(post => post._id !== postId));
+            setFilteredUserPosts(userPosts.filter(post => post._id !== postId));
             setIsDeletePostModalOpen(false);
             
             // Пост будет удален из базы данных через модальное окно DeletePostModal
@@ -440,10 +482,53 @@ export default function UserProfile() {
                 {activeTab === 'posts' && (
                     <div>
                         <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Мои посты</h2>
+                        
+                        {/* Поле поиска */}
+                        {userPosts.length > 0 && (
+                            <div className="mb-4">
+                                <div className={`relative max-w-md mx-auto ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                    <div className="relative">
+                                        <SearchIcon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} h-5 w-5`} />
+                                        <input
+                                            type="text"
+                                            placeholder="Поиск по моим постам..."
+                                            value={searchQuery}
+                                            onChange={(e) => handleSearchChange(e.target.value)}
+                                            className={`w-full pl-10 pr-10 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                                                theme === 'dark' 
+                                                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                            }`}
+                                        />
+                                        {searchQuery && (
+                                            <button
+                                                onClick={clearSearch}
+                                                className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                                            >
+                                                <ClearIcon className="h-5 w-5" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Результаты поиска */}
+                                {searchQuery && (
+                                    <div className={`text-center mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                                        <p className="text-sm">
+                                            {filteredUserPosts.length === 0 
+                                                ? `Не найдено постов по запросу "${searchQuery}"` 
+                                                : `Найдено ${filteredUserPosts.length} ${filteredUserPosts.length === 1 ? 'пост' : filteredUserPosts.length <= 4 ? 'поста' : 'постов'} по запросу "${searchQuery}"`
+                                            }
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        
                         <div className="flex flex-nowrap gap-2 justify-center">
                             <div role="tablist" aria-orientation="horizontal" className={`max-h-96 overflow-auto items-center rounded-md inline-flex w-auto justify-start p-5 gap-10 ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`} tabIndex={0} style={{ outline: 'none' }}>
-                                {userPosts.length > 0 ? (
-                                    userPosts.map((post) => (
+                                {filteredUserPosts.length > 0 ? (
+                                    filteredUserPosts.map((post) => (
                                         <div key={post._id} className={`min-w-96 p-4 rounded-lg shadow-md flex items-center ${theme === 'dark' ? 'bg-gray-600' : 'bg-white'}`}>
                                             <div className="mr-4">
                                                 <h3 className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{post.title}</h3>
@@ -468,7 +553,9 @@ export default function UserProfile() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>У вас нет постов.</p>
+                                    <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                        {searchQuery ? `По запросу "${searchQuery}" ничего не найдено` : 'У вас нет постов.'}
+                                    </p>
                                 )}
                             </div>
                         </div>
