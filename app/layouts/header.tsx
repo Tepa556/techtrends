@@ -14,21 +14,14 @@ import jwt from 'jsonwebtoken';
 import { useRouter } from 'next/navigation';
 import ThemeToogle from '../ui/ThemeToogle';
 import { useThemeStore } from '../lib/ThemeStore';
-
 interface Category {
     name: string;
     link: string;
 }
-
 interface User {
     email: string;
     username?: string;
     avatar?: string;
-}
-
-interface DecodedToken {
-    exp: number;
-    [key: string]: unknown;
 }
 
 export default function Header() {
@@ -50,7 +43,22 @@ export default function Header() {
         router.push('/');
     }, [router]);
 
-    const fetchUserData = useCallback(async (token: string) => {
+    useEffect(() => {
+        const token = Cookies.get('token');
+        if (token) {
+            const decoded: any = jwt.decode(token);
+            const currentTime = Date.now() / 1000;
+            if (decoded.exp < currentTime) {
+                removeToken();
+            } else {
+                fetchUserData(token);
+            }
+        } else {
+            setLoading(false);
+        }
+    }, [removeToken]);
+
+    const fetchUserData = async (token: string) => {
         try {
             const response = await fetch('/api/user', {
                 headers: {
@@ -70,22 +78,7 @@ export default function Header() {
         } finally {
             setLoading(false);
         }
-    }, [removeToken]);
-
-    useEffect(() => {
-        const token = Cookies.get('token');
-        if (token) {
-            const decoded = jwt.decode(token) as DecodedToken;
-            const currentTime = Date.now() / 1000;
-            if (decoded.exp < currentTime) {
-                removeToken();
-            } else {
-                fetchUserData(token);
-            }
-        } else {
-            setLoading(false);
-        }
-    }, [removeToken, fetchUserData]);
+    };
 
     const handleOpenLogin = () => {
         setIsAuthModalOpen(true);
@@ -164,6 +157,8 @@ export default function Header() {
         setIsSearchOpen(false);
     };
 
+
+
     const handleProfilesClick = () => {
         if (user) {
             window.location.href = '/profiles';
@@ -173,10 +168,13 @@ export default function Header() {
         setIsMobileMenuOpen(false);
     };
 
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
     useEffect(() => {
         console.log(theme);
     }, [theme]);
-
     return (
         <>
             <header className={`fixed top-0 left-0 right-0 z-50 shadow-sm ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
@@ -191,7 +189,7 @@ export default function Header() {
                         
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-1">
-                            <Link href="/" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-primary hover:text-blue-500'}`}>Главная</Link>
+                            <a href="/" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'text-primary hover:text-blue-500'}`}>Главная</a>
                             <div className="relative group">
                                 <button className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}>Категории</button>
                                 <div className={`absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10`}>
@@ -202,7 +200,7 @@ export default function Header() {
                                     ))}
                                 </div>
                             </div>
-                            <Link href="/about" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}>О нас</Link>
+                            <a href="/about" className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}>О нас</a>
                             <button
                                 onClick={handleProfilesClick}
                                 className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-500'}`}
@@ -266,7 +264,7 @@ export default function Header() {
                 {isMobileMenuOpen && (
                     <div className={`md:hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-t border-gray-200 shadow-lg`}>
                         <div className="px-2 pt-2 pb-4 space-y-1">
-                            <Link href="/" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>Главная</Link>
+                            <a href="/" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>Главная</a>
                             
                             {/* Mobile Categories Dropdown */}
                             <div className="relative">
@@ -290,7 +288,7 @@ export default function Header() {
                                 </div>
                             </div>
                             
-                            <Link href="/about" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>О нас</Link>
+                            <a href="/about" className={`block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}>О нас</a>
                             <button
                                 onClick={handleProfilesClick}
                                 className={`w-full text-left block px-3 py-3 rounded-md text-base font-bold ${theme === 'dark' ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}

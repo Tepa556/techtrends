@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 
 interface SubscribeButtonProps {
@@ -12,7 +12,12 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ userEmail, currentUse
     const [isSubscribed, setIsSubscribed] = useState(false); // Состояние подписки
     const [loading, setLoading] = useState(true); // Состояние загрузки
 
-    const checkSubscriptionStatus = useCallback(async () => {
+    useEffect(() => {
+        // Проверяем статус подписки при монтировании компонента
+        checkSubscriptionStatus();
+    }, [userEmail, currentUserEmail]);
+
+    const checkSubscriptionStatus = async () => {
         try {
             const response = await fetch(`/api/subscription/${userEmail}/status/`, {
                 headers: {
@@ -29,12 +34,7 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ userEmail, currentUse
         } finally {
             setLoading(false);
         }
-    }, [userEmail]);
-
-    useEffect(() => {
-        // Проверяем статус подписки при монтировании компонента
-        checkSubscriptionStatus();
-    }, [userEmail, currentUserEmail, checkSubscriptionStatus]);
+    };
 
     const handleSubscribe = async () => {
         const method = isSubscribed ? 'DELETE' : 'POST';

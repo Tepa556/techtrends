@@ -29,7 +29,7 @@ interface PostDetailsModalProps {
     onReject: () => void;
     isLoading: boolean;
 }
-//
+
 export default function PostDetailsModal({ 
     isOpen, 
     onClose, 
