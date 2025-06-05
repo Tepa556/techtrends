@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === 'production' 
-      ? 'https://techtrends-cyan.vercel.app' 
+      ? 'https://techtrends.app' 
       : 'http://localhost:3000'
   ),
   title: {

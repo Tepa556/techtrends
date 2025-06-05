@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 const getBaseUrl = () => {
   return process.env.NODE_ENV === 'production' 
-    ? 'https://techtrends-cyan.vercel.app/' 
+    ? 'https://techtrends.app' 
     : 'http://localhost:3000';
 };
 
