@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useThemeStore } from '@/app/lib/ThemeStore';
+
 export default function AdminLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -41,7 +42,7 @@ export default function AdminLogin() {
             } else {
                 setError(data.error || 'Ошибка при входе');
             }
-        } catch (error) {
+        } catch (_) {
             setError('Произошла ошибка при обращении к серверу');
         } finally {
             setLoading(false);
