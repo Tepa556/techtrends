@@ -9,6 +9,20 @@ const getBaseUrl = () => {
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseUrl();
   
+  // Если это Vercel домен, запрещаем индексацию
+  const isVercelDomain = process.env.VERCEL_URL && process.env.VERCEL_URL.includes('vercel.app');
+  
+  if (isVercelDomain) {
+    return {
+      rules: [
+        {
+          userAgent: '*',
+          disallow: ['/'],
+        },
+      ],
+    };
+  }
+  
   return {
     rules: [
       {

@@ -34,6 +34,14 @@ const isPublicPath = (path: string) => {
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
+    const hostname = request.headers.get('host') || '';
+    
+    // Редирект с Vercel домена на основной домен (только в production)
+    if (process.env.NODE_ENV === 'production' && hostname.includes('vercel.app')) {
+        const url = new URL(request.url);
+        url.hostname = 'techtrends.app';
+        return NextResponse.redirect(url, 301); // Постоянный редирект
+    }
     
     // Пропускаем запросы к статическим файлам
     if (path.startsWith('/post-back')|| path.startsWith('/user-avatar') || path.startsWith('/api')) {

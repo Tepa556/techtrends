@@ -29,6 +29,14 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: process.env.NODE_ENV === 'production' 
+      ? 'https://techtrends.app' 
+      : 'http://localhost:3000'
+  },
+  other: {
+    'X-Robots-Tag': 'index, follow'
   }
 };
 
