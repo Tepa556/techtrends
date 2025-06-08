@@ -3,6 +3,7 @@ import { useParams } from 'next/navigation';
 import PostCard from '@/app/ui/PostCard';
 import { categories } from '@/app/lib/nav-categories';
 import { useThemeStore } from '@/app/lib/ThemeStore';
+import FilterPanel, { FilterOptions } from '@/app/ui/FilterPanel';
 interface Post {
   _id: string;
   title: string;
@@ -19,9 +20,16 @@ interface Post {
 const CategoryContent = () => {
   const { category } = useParams<{ category: string }>();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categoryTitle, setCategoryTitle] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    timeFilter: 'all',
+    sortBy: 'newest',
+    minRating: 0
+  });
   const { theme } = useThemeStore();
   useEffect(() => {
     const categoryObj = categories.find(cat =>
@@ -40,7 +48,9 @@ const CategoryContent = () => {
         }
 
         const data = await response.json();
-        setPosts(data.filter((post: Post) => post.status === 'Опубликован'));
+        const publishedPosts = data.filter((post: Post) => post.status === 'Опубликован');
+        setPosts(publishedPosts);
+        setFilteredPosts(publishedPosts);
       } catch (error) {
         console.error('Ошибка при загрузке постов категории:', error);
         setError('Не удалось загрузить посты. Попробуйте позже.');
@@ -54,12 +64,88 @@ const CategoryContent = () => {
     }
   }, [category]);
 
+  // Функция применения фильтров
+  const applyFilters = (postList: Post[], currentFilters: FilterOptions) => {
+    let filtered = [...postList];
+
+    // Фильтр по рейтингу
+    if (currentFilters.minRating > 0) {
+      filtered = filtered.filter(post => post.likeCount >= currentFilters.minRating);
+    }
+
+    // Фильтр по времени
+    if (currentFilters.timeFilter !== 'all') {
+      const now = new Date();
+      let dateThreshold: Date;
+
+      switch (currentFilters.timeFilter) {
+        case 'today':
+          dateThreshold = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          dateThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'year':
+          dateThreshold = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          dateThreshold = new Date(0);
+      }
+
+      filtered = filtered.filter(post => new Date(post.createdAt) >= dateThreshold);
+    }
+
+    // Сортировка
+    switch (currentFilters.sortBy) {
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      case 'popular':
+        filtered.sort((a, b) => (b.likeCount + (b.comments?.length || 0)) - (a.likeCount + (a.comments?.length || 0)));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => b.likeCount - a.likeCount);
+        break;
+      case 'comments':
+        filtered.sort((a, b) => (b.comments?.length || 0) - (a.comments?.length || 0));
+        break;
+      default: // newest
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    return filtered;
+  };
+
+  // Применяем фильтры при изменении постов или фильтров
+  useEffect(() => {
+    const result = applyFilters(posts, filters);
+    setFilteredPosts(result);
+  }, [posts, filters]);
+
+  // Обработчик изменения фильтров
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  };
+
   return (
     <div className="container mx-auto px-4 py-16 min-h-[calc(100vh-200px)]">
       <div className="mb-8">
         <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mt-4`}>{categoryTitle}</h1>
         <div className="w-20 h-1 bg-blue-600 mt-2 mb-6"></div>
       </div>
+
+      {/* Фильтры */}
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        showResultCount={true}
+        resultCount={filteredPosts.length}
+      />
 
       {isLoading ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,7 +180,7 @@ const CategoryContent = () => {
             Попробовать снова
           </button>
         </div>
-      ) : posts.length === 0 ? (
+      ) : filteredPosts.length === 0 ? (
         <div className={`text-center py-12 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} rounded-lg shadow-sm`}>
           <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-medium text-xl`}>
             В категории «{categoryTitle}» пока нет публикаций
@@ -105,7 +191,7 @@ const CategoryContent = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <PostCard key={post._id} post={{
               _id: post._id,
               title: post.title,

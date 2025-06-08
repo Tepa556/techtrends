@@ -57,16 +57,34 @@ export async function DELETE(
     }
 
     // Проверяем права на удаление (автор комментария или админ)
-    const isAdmin = user.role === 'admin'; // Если у вас есть такое поле
+    const isAdmin = user.role === 'admin';
     if (comment.author !== user.username && !isAdmin) {
       await client.close();
       return NextResponse.json({ error: 'У вас нет прав на удаление этого комментария' }, { status: 403 });
     }
 
-    // Удаляем комментарий
+    // Функция для рекурсивного удаления комментария и всех его ответов
+    const removeCommentAndReplies = (comments: any[], targetId: string): any[] => {
+      return comments.filter(comment => {
+        // Удаляем сам комментарий
+        if (comment._id === targetId) {
+          return false;
+        }
+        // Удаляем все ответы на этот комментарий
+        if (comment.parentId === targetId) {
+          return false;
+        }
+        return true;
+      });
+    };
+
+    // Удаляем комментарий и все его ответы
+    const updatedComments = removeCommentAndReplies(post.comments || [], commentId);
+
+    // Обновляем пост с новым массивом комментариев
     await postsCollection.updateOne(
       { _id: new ObjectId(postId) },
-      { $pull: { comments: { _id: commentId } } } as any
+      { $set: { comments: updatedComments } }
     );
 
     await client.close();

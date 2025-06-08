@@ -1,32 +1,65 @@
 "use client"
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useThemeStore } from '@/app/lib/ThemeStore';
-interface Comment {
-  _id: string;
-  text: string;
-  author: string;
-  authorAvatar: string;
-  createdAt: string;
-}
+import { Comment } from '@/app/types/comment';
+import CommentItem from './CommentItem';
 
 interface CommentListProps {
   comments: Comment[];
   postId: string;
+  maxLevel?: number;
 }
 
-export default function CommentList({ comments, postId }: CommentListProps) {
-  const [commentsList, setCommentsList] = useState<Comment[]>(comments);
+export default function CommentList({ comments, postId, maxLevel = 3, onCommentDeleted }: CommentListProps) {
+  const [commentsList, setCommentsList] = useState<Comment[]>([]);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const { theme } = useThemeStore();
+
+  // Функция для организации комментариев в древовидную структуру
+  const organizeComments = (flatComments: Comment[]): Comment[] => {
+    const commentMap = new Map<string, Comment>();
+    const rootComments: Comment[] = [];
+
+    // Первый проход: создаем Map всех комментариев
+    flatComments.forEach(comment => {
+      commentMap.set(comment._id, { ...comment, replies: [] });
+    });
+
+    // Второй проход: организуем в дерево
+    flatComments.forEach(comment => {
+      const commentWithReplies = commentMap.get(comment._id)!;
+      
+      if (comment.parentId) {
+        // Это ответ на комментарий
+        const parent = commentMap.get(comment.parentId);
+        if (parent) {
+          parent.replies = parent.replies || [];
+          parent.replies.push(commentWithReplies);
+        }
+      } else {
+        // Это корневой комментарий
+        rootComments.push(commentWithReplies);
+      }
+    });
+
+    // Сортируем комментарии по дате создания (новые сначала)
+    const sortComments = (comments: Comment[]): Comment[] => {
+      return comments
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .map(comment => ({
+          ...comment,
+          replies: comment.replies ? sortComments(comment.replies) : []
+        }));
+    };
+
+    return sortComments(rootComments);
+  };
+
   // Получение информации о текущем пользователе
-  useState(() => {
+  useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const token = Cookies.get('token');
@@ -41,7 +74,7 @@ export default function CommentList({ comments, postId }: CommentListProps) {
         if (response.ok) {
           const userData = await response.json();
           setCurrentUser(userData.username);
-          setIsAdmin(userData.role === 'admin'); // Если у вас есть роли пользователей
+          setIsAdmin(userData.role === 'admin');
         }
       } catch (error) {
         console.error('Ошибка при получении данных пользователя:', error);
@@ -49,74 +82,66 @@ export default function CommentList({ comments, postId }: CommentListProps) {
     };
 
     fetchCurrentUser();
-  });
+  }, []);
+
+  // Организация комментариев при изменении входных данных
+  useEffect(() => {
+    const organizedComments = organizeComments(comments);
+    setCommentsList(organizedComments);
+  }, [comments]);
+
+  // Обработчик добавления нового комментария
+  const handleCommentAdded = (newComment: Comment) => {
+    // Добавляем новый комментарий к текущему списку и реорганизуем
+    const updatedComments = [...comments, newComment];
+    const organizedComments = organizeComments(updatedComments);
+    setCommentsList(organizedComments);
+  };
 
   // Обработчик удаления комментария
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      const token = Cookies.get('token');
-      const response = await fetch(`/api/post/comment/${postId}/${commentId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+  const handleCommentDeleted = (commentId: string) => {
+    // Рекурсивная функция для удаления комментария и его ответов
+    const removeCommentAndReplies = (comments: Comment[], idToRemove: string): Comment[] => {
+      return comments
+        .filter(comment => comment._id !== idToRemove)
+        .map(comment => ({
+          ...comment,
+          replies: comment.replies ? removeCommentAndReplies(comment.replies, idToRemove) : []
+        }));
+    };
 
-      if (response.ok) {
-        setCommentsList(prev => prev.filter(comment => comment._id !== commentId));
-      } else {
-        const errorData = await response.json();
-        console.error('Ошибка при удалении комментария:', errorData.error);
-      }
-    } catch (error) {
-      console.error('Ошибка при удалении комментария:', error);
+    const updatedComments = removeCommentAndReplies(commentsList, commentId);
+    setCommentsList(updatedComments);
+    
+    // Уведомляем родительский компонент об удалении
+    if (onCommentDeleted) {
+      onCommentDeleted(commentId);
     }
   };
 
   if (commentsList.length === 0) {
-    return <p className="text-gray-500 italic">Комментариев пока нет. Будьте первым!</p>;
+    return (
+      <p className={`italic ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+        Комментариев пока нет. Будьте первым!
+      </p>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {commentsList.map((comment) => {
-        const formattedDate = format(new Date(comment.createdAt), 'd MMMM yyyy, HH:mm', { locale: ru });
-        const canDelete = currentUser === comment.author ;
-
-        return (
-          <div key={comment._id} className={`flex space-x-4 p-4 rounded-lg shadow-sm ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
-            <div className="flex-shrink-0">
-              <div className="relative w-10 h-10">
-                <Image 
-                  src={comment.authorAvatar || '/user-avatar/default-avatar.jpg'} 
-                  alt={comment.author} 
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className="rounded-full"
-                />
-              </div>
-            </div>
-            <div className="flex-grow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>{comment.author}</h3>
-                  <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{formattedDate}</p>
-                </div>
-                {canDelete && (
-                  <button 
-                    onClick={() => handleDeleteComment(comment._id)}
-                    className={`${theme === 'dark' ? 'text-gray-400 hover:text-red-400' : 'text-gray-400 hover:text-red-500'}`}
-                    aria-label="Удалить комментарий"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </button>
-                )}
-              </div>
-              <div className={`mt-2 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{comment.text}</div>
-            </div>
-          </div>
-        );
-      })}
+    <div className="space-y-0">
+      {commentsList.map((comment) => (
+        <CommentItem
+          key={comment._id}
+          comment={comment}
+          postId={postId}
+          currentUser={currentUser}
+          isAdmin={isAdmin}
+          level={0}
+          maxLevel={maxLevel}
+          onCommentAdded={handleCommentAdded}
+          onCommentDeleted={handleCommentDeleted}
+        />
+      ))}
     </div>
   );
 } 

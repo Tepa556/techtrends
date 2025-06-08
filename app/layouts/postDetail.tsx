@@ -11,6 +11,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentList from '@/app/ui/comments/CommentList';
 import CommentForm from '@/app/ui/comments/CommentForm';
 import { useThemeStore } from '../lib/ThemeStore';
+import { Comment } from '@/app/types/comment';
+
 // Интерфейсы
 interface Post {
   _id: string;
@@ -26,19 +28,9 @@ interface Post {
   createdAt: string;
 }
 
-interface Comment {
-  _id: string;
-  text: string;
-  author: string;
-  authorAvatar: string;
-  createdAt: string;
-}
-
 interface AuthorData {
-  username: string;
   avatar: string;
-  role: string;
-  bio: string;
+  username: string;
 }
 
 interface PostDetailProps {
@@ -47,12 +39,14 @@ interface PostDetailProps {
 
 export default function PostDetail({ postId }: PostDetailProps) {
   const [post, setPost] = useState<Post | null>(null);
+  const [currentComments, setCurrentComments] = useState<Comment[]>([]);
   const [authorData, setAuthorData] = useState<AuthorData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const { theme } = useThemeStore();  
+  
   // Проверка авторизации пользователя
   useEffect(() => {
     const token = Cookies.get('token');
@@ -72,6 +66,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
         
         const data = await response.json();
         setPost(data);
+        setCurrentComments(data.comments || []);
         
         // Получение информации об авторе
         if (data.author) {
@@ -146,6 +141,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
   // Обработчик добавления комментария
   const handleCommentAdded = (newComment: Comment) => {
+    setCurrentComments(prevComments => [newComment, ...prevComments]);
     setPost(prevPost => {
       if (!prevPost) return null;
       return {
@@ -155,80 +151,47 @@ export default function PostDetail({ postId }: PostDetailProps) {
     });
   };
 
+  // Обработчик удаления комментария
+  const handleCommentDeleted = (deletedCommentId: string) => {
+    // Рекурсивная функция для удаления комментария и его ответов из плоского массива
+    const removeCommentAndRepliesFromFlat = (comments: Comment[], targetId: string): Comment[] => {
+      return comments.filter(comment => {
+        // Удаляем сам комментарий
+        if (comment._id === targetId) {
+          return false;
+        }
+        // Удаляем все ответы на этот комментарий
+        if (comment.parentId === targetId) {
+          return false;
+        }
+        return true;
+      });
+    };
+
+    const updatedComments = removeCommentAndRepliesFromFlat(currentComments, deletedCommentId);
+    setCurrentComments(updatedComments);
+    
+    // Также обновляем пост для синхронизации
+    setPost(prevPost => {
+      if (!prevPost) return null;
+      return {
+        ...prevPost,
+        comments: updatedComments
+      };
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-          <article className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto`}>
-          {/* Скелетон для заголовка и информации о посте */}
+        <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto animate-pulse`}>
           <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-24 rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-20 rounded`}></div>
-            </div>
-            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-8 w-3/4 rounded mb-4`}></div>
-            
-            {/* Скелетон для описания */}
-            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-20 w-full rounded mb-6`}></div>
-            
-            {/* Скелетон для информации об авторе */}
-            <div className="flex items-center mb-6">
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full mr-3`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded`}></div>
-            </div>
+            <div className={`h-6 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded mb-4`}></div>
+            <div className={`h-8 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded mb-4`}></div>
+            <div className={`h-20 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded mb-6`}></div>
           </div>
-          
-          {/* Скелетон для изображения поста */}
-          <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-96 w-full`}></div>
-          
-          {/* Скелетон для содержимого поста */}
-          <div className="p-6">
-            <div className="flex flex-col space-y-3">
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-11/12 rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-10/12 rounded`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded`}></div>
-            </div>
-            
-            {/* Скелетон для кнопки лайка */}
-            <div className={`flex items-center mt-8 border-t pt-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-6 rounded-full`}></div>
-              <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-6 rounded ml-2`}></div>
-            </div>
-          </div>
-          
-          {/* Скелетон для секции комментариев */}
-          <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} border-t`}>
-            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-6 w-48 rounded mb-4`}></div>
-            
-            {/* Скелетон для формы комментариев */}
-            <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-24 w-full rounded mb-6`}></div>
-            
-            {/* Скелетоны комментариев */}
-            <div className="space-y-6">
-              {/* Комментарий 1 */}
-              <div className="flex">
-                <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full`}></div>
-                <div className="ml-3 flex-1">
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded mb-2`}></div>
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded mb-1`}></div>
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-5/6 rounded`}></div>
-                </div>
-              </div>
-              
-              {/* Комментарий 2 */}
-              <div className="flex">
-                <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-10 w-10 rounded-full`}></div>
-                <div className="ml-3 flex-1">
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-5 w-32 rounded mb-2`}></div>
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-full rounded mb-1`}></div>
-                  <div className={`animate-pulse ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} h-4 w-4/6 rounded`}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
+          <div className={`h-96 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+        </div>
       </div>
     );
   }
@@ -236,11 +199,14 @@ export default function PostDetail({ postId }: PostDetailProps) {
   if (errorMessage) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{errorMessage}</p>
-          <Link href="/" className="text-blue-500 hover:underline mt-2 inline-block">
-            Вернуться на главную
-          </Link>
+        <div className="text-center">
+          <p className="text-red-500 text-lg font-medium">{errorMessage}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Попробовать снова
+          </button>
         </div>
       </div>
     );
@@ -250,16 +216,22 @@ export default function PostDetail({ postId }: PostDetailProps) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Пост не найден</h1>
-          <Link href="/" className="text-blue-500 hover:underline mt-2 inline-block">
-            Вернуться на главную
-          </Link>
+          <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Пост не найден</p>
         </div>
       </div>
     );
   }
 
   const formattedDate = format(new Date(post.createdAt), 'd MMMM yyyy', { locale: ru });
+
+  // Подсчитываем общее количество комментариев (включая вложенные)
+  const countTotalComments = (comments: Comment[]): number => {
+    return comments.reduce((total, comment) => {
+      return total + 1 + (comment.replies ? countTotalComments(comment.replies) : 0);
+    }, 0);
+  };
+
+  const totalCommentsCount = countTotalComments(currentComments);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -328,7 +300,9 @@ export default function PostDetail({ postId }: PostDetailProps) {
         
         {/* Секция комментариев */}
         <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-gray-50'} border-t`}>
-          <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Комментарии ({post.comments?.length || 0})</h2>
+          <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>
+            Комментарии ({totalCommentsCount})
+          </h2>
           
           {isAuthenticated ? (
             <CommentForm postId={post._id} onCommentAdded={handleCommentAdded} />
@@ -338,7 +312,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
             </p>
           )}
           
-          <CommentList comments={post.comments || []} postId={post._id} />
+          <CommentList comments={currentComments} postId={post._id} maxLevel={3} onCommentDeleted={handleCommentDeleted} />
         </div>
       </article>
     </div>

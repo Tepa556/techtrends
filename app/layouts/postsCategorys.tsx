@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import PostCard from '@/app/ui/PostCard';
 import { categories } from '@/app/lib/categories-for-posts-categories'; 
 import { useThemeStore } from '../lib/ThemeStore';
+import FilterPanel, { FilterOptions } from '../ui/FilterPanel';
 interface Post {
     _id: string;
     title: string;
@@ -23,6 +24,12 @@ const PostsCategory = () => {
     const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [filters, setFilters] = useState<FilterOptions>({
+        timeFilter: 'all',
+        sortBy: 'newest',
+        minRating: 0
+    });
     const { theme } = useThemeStore();
     useEffect(() => {
         const fetchPosts = async () => {
@@ -50,14 +57,72 @@ const PostsCategory = () => {
         fetchPosts();
     }, []);
 
+    // Функция применения фильтров и категорий
+    const applyFiltersAndCategory = (postList: Post[], category: string, currentFilters: FilterOptions) => {
+        // Сначала фильтруем по категории
+        let filtered = category === 'Все' ? [...postList] : postList.filter(post => post.category === category);
+
+        // Фильтр по рейтингу
+        if (currentFilters.minRating > 0) {
+            filtered = filtered.filter(post => post.likeCount >= currentFilters.minRating);
+        }
+
+        // Фильтр по времени
+        if (currentFilters.timeFilter !== 'all') {
+            const now = new Date();
+            let dateThreshold: Date;
+
+            switch (currentFilters.timeFilter) {
+                case 'today':
+                    dateThreshold = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    dateThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'year':
+                    dateThreshold = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                    break;
+                default:
+                    dateThreshold = new Date(0);
+            }
+
+            filtered = filtered.filter(post => new Date(post.createdAt) >= dateThreshold);
+        }
+
+        // Сортировка
+        switch (currentFilters.sortBy) {
+            case 'oldest':
+                filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                break;
+            case 'popular':
+                filtered.sort((a, b) => (b.likeCount + (b.comments?.length || 0)) - (a.likeCount + (a.comments?.length || 0)));
+                break;
+            case 'rating':
+                filtered.sort((a, b) => b.likeCount - a.likeCount);
+                break;
+            case 'comments':
+                filtered.sort((a, b) => (b.comments?.length || 0) - (a.comments?.length || 0));
+                break;
+            default: // newest
+                filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+
+        return filtered;
+    };
+
     useEffect(() => {
-        // Фильтруем посты при изменении выбранной категории или при обновлении списка постов
-        setFilteredPosts(
-            selectedCategory === 'Все' 
-                ? posts 
-                : posts.filter(post => post.category === selectedCategory)
-        );
-    }, [selectedCategory, posts]);
+        // Применяем фильтры и категории при изменении постов, категории или фильтров
+        const result = applyFiltersAndCategory(posts, selectedCategory, filters);
+        setFilteredPosts(result);
+    }, [selectedCategory, posts, filters]);
+
+    // Обработчик изменения фильтров
+    const handleFiltersChange = (newFilters: FilterOptions) => {
+        setFilters(newFilters);
+    };
 
     // Скелетон для карточки поста
     const PostCardSkeleton = () => (
@@ -100,9 +165,9 @@ const PostsCategory = () => {
                     <span className={`text-sm font-medium ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} uppercase tracking-wider`}>Исследуйте</span>
                     <h2 className={`text-3xl md:text-4xl font-bold mt-1 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Категории</h2>
                 </div>
-                
+
                 {/* Кнопки категорий */}
-                <div className="flex flex-wrap justify-center gap-3 mb-10 font-bold ">
+                <div className="flex flex-wrap justify-center gap-3 mb-6 font-bold ">
                     <button
                         className={`px-4 py-2 rounded-full transition-colors ${
                             selectedCategory === 'Все' 
@@ -129,6 +194,18 @@ const PostsCategory = () => {
                             </button>
                         ))
                     }
+                </div>
+
+                {/* Фильтры */}
+                <div className="mt-2.5 mb-10">
+                  <FilterPanel
+                      filters={filters}
+                      onFiltersChange={handleFiltersChange}
+                      isOpen={isFilterOpen}
+                      onToggle={() => setIsFilterOpen(!isFilterOpen)}
+                      showResultCount={true}
+                      resultCount={filteredPosts.length}
+                  />
                 </div>
                 
                 {isLoading ? (

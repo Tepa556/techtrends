@@ -11,6 +11,7 @@ import Message from '@mui/icons-material/Message';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useThemeStore } from '@/app/lib/ThemeStore';
+import FilterPanel from '@/app/ui/FilterPanel';
 
 interface User {
   _id: string;
@@ -49,6 +50,14 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [activePostIndex, setActivePostIndex] = useState(0);
 
+  // Состояния для фильтров
+  const [filters, setFilters] = useState({
+    timeFilter: 'all',
+    sortBy: 'newest',
+    minRating: 0
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   // Функция фильтрации постов
   const filterPosts = (posts: Post[], query: string) => {
     if (!query.trim()) {
@@ -63,16 +72,63 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
     );
   };
 
+  // Применение фильтров
+  const applyFilters = (posts: Post[]) => {
+    let filtered = [...posts];
+
+    // Фильтр по времени
+    if (filters.timeFilter !== 'all') {
+      const now = new Date();
+      const timeThresholds: Record<string, Date> = {
+        today: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+        week: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+        month: new Date(now.getFullYear(), now.getMonth(), 1),
+        year: new Date(now.getFullYear(), 0, 1)
+      };
+      
+      const threshold = timeThresholds[filters.timeFilter];
+      filtered = filtered.filter(post => new Date(post.createdAt) >= threshold);
+    }
+
+    // Фильтр по минимальному рейтингу
+    if (filters.minRating > 0) {
+      filtered = filtered.filter(post => (post.likeCount || 0) >= filters.minRating);
+    }
+
+    // Сортировка
+    filtered.sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'popular':
+          return (b.likeCount || 0) - (a.likeCount || 0);
+        case 'rating':
+          return (b.likeCount || 0) - (a.likeCount || 0);
+        case 'comments':
+          return (b.comments?.length || 0) - (a.comments?.length || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  };
+
   // Обработчик изменения поискового запроса
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setFilteredPosts(filterPosts(posts, query));
+    const searchFiltered = filterPosts(posts, query);
+    const finalFiltered = applyFilters(searchFiltered);
+    setFilteredPosts(finalFiltered);
   };
 
   // Очистка поиска
   const clearSearch = () => {
     setSearchQuery('');
-    setFilteredPosts(posts);
+    const finalFiltered = applyFilters(posts);
+    setFilteredPosts(finalFiltered);
   };
 
   useEffect(() => {
@@ -118,7 +174,9 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
         const postsData = await postsResponse.json();
         const publishedPosts = postsData.filter((post: Post) => post.status === 'Опубликован');
         setPosts(publishedPosts);
-        setFilteredPosts(publishedPosts);
+        const searchFiltered = filterPosts(publishedPosts, searchQuery);
+        const finalFiltered = applyFilters(searchFiltered);
+        setFilteredPosts(finalFiltered);
       } catch (error: any) {
         console.error('Ошибка при загрузке данных:', error);
         setError(error.message || 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.');
@@ -131,6 +189,13 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
       fetchUserData();
     }
   }, [userId]);
+
+  // Применение фильтров при их изменении
+  useEffect(() => {
+    const searchFiltered = filterPosts(posts, searchQuery);
+    const finalFiltered = applyFilters(searchFiltered);
+    setFilteredPosts(finalFiltered);
+  }, [filters, posts, searchQuery]);
 
   // Переключение между постами
   const handleTabChange = (index: number) => {
@@ -270,6 +335,20 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                       </p>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Фильтры */}
+              {posts.length > 0 && (
+                <div className="mt-2 mb-4">
+                  <FilterPanel
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    isOpen={isFilterOpen}
+                    onToggle={() => setIsFilterOpen(!isFilterOpen)}
+                    showResultCount={true}
+                    resultCount={filteredPosts.length}
+                  />
                 </div>
               )}
               
