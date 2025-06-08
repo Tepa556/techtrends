@@ -10,6 +10,7 @@ interface CommentListProps {
   comments: Comment[];
   postId: string;
   maxLevel?: number;
+  onCommentDeleted?: (deletedCommentId: string) => void;
 }
 
 export default function CommentList({ comments, postId, maxLevel = 3, onCommentDeleted }: CommentListProps) {
