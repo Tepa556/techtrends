@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import YandexMetrica from "./components/YandexMetrica";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,6 +65,7 @@ export default function RootLayout({
             {process.env.NEXT_PUBLIC_YM_ID && (
               <YandexMetrica ymId={process.env.NEXT_PUBLIC_YM_ID} />
             )}
+            <SpeedInsights />
           </>
         )}
       </body>
