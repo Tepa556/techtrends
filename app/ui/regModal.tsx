@@ -8,13 +8,13 @@ import { useThemeStore } from '../lib/ThemeStore';
 
 interface RegModalProps {
     isOpen: boolean;
-    onClose: () => void;
-    onRegister: (username: string, email: string, password: string, phone: string) => Promise<void>;
+    onCloseAction: () => void;
+    onRegisterAction: (username: string, email: string, password: string, phone: string) => Promise<void>;
     error: string | null;
-    onOpenLogin: () => void;
+    onOpenLoginAction: () => void;
 }
 
-export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLogin }: RegModalProps) {
+export default function RegModal({ isOpen, onCloseAction, onRegisterAction, error, onOpenLoginAction }: RegModalProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -76,30 +76,37 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
         
         setIsLoading(true);
         try {
-            await onRegister(username, email, password, phone);
+            await onRegisterAction(username, email, password, phone);
         } finally {
             setIsLoading(false);
         }
     };
 
+    const handleOpenLogin = () => {
+        onOpenLoginAction();
+        onCloseAction();
+    };
+
     return (
         <Dialog 
             open={isOpen} 
-            onClose={onClose} 
+            onClose={onCloseAction} 
             maxWidth="sm" 
             fullWidth
-            className={theme === 'dark' ? 'bg-gray-900' : 'bg-white'}
+            PaperProps={{
+                className: 'backdrop-blur-sm bg-opacity-90'
+            }}
         >
-            <DialogTitle className={`relative font-bold ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white'}`}>
+            <DialogTitle className={`relative font-bold ${theme === 'dark' ? 'bg-gray-900/90 text-white' : 'bg-white/90'}`}>
                 <p className='font-bold'>Регистрация</p>
                 <button
-                    onClick={onClose}
+                    onClick={onCloseAction}
                     className={`absolute right-6 top-3 ${theme === 'dark' ? 'text-gray-300 hover:text-gray-100' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
                 >
                     <CloseIcon className='cursor-pointer' />
                 </button>
             </DialogTitle>
-            <DialogContent className={theme === 'dark' ? 'bg-gray-900' : 'bg-white'}>
+            <DialogContent className={theme === 'dark' ? 'bg-gray-900/90' : 'bg-white/90'}>
                 {isLoading ? (
                     <div className="flex justify-center my-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -256,7 +263,7 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                     </form>
                 )}
             </DialogContent>
-            <div className={`flex justify-center px-6 pb-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+            <div className={`flex justify-center px-6 pb-6 ${theme === 'dark' ? 'bg-gray-900/90' : 'bg-white/90'}`}>
                 <button
                     onClick={handleSubmit} 
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-sm transition-colors duration-200"
@@ -265,11 +272,11 @@ export default function RegModal({ isOpen, onClose, onRegister, error, onOpenLog
                     {isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
                 </button>
             </div>
-            <div className={`px-6 pb-6 text-center ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+            <div className={`px-6 pb-6 text-center ${theme === 'dark' ? 'bg-gray-900/90' : 'bg-white/90'}`}>
                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     Уже есть аккаунт? 
                     <button 
-                        onClick={onOpenLogin} 
+                        onClick={handleOpenLogin} 
                         className={`ml-2 ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-700'} font-medium transition-colors`} 
                         disabled={isLoading}
                     >
