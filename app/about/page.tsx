@@ -1,6 +1,5 @@
 "use client"
 import React from 'react';
-import Head from 'next/head';
 import Header from '../layouts/header';
 import Footer from '../layouts/footer';
 import { useThemeStore } from '@/app/lib/ThemeStore';
@@ -10,12 +9,6 @@ export default function AboutPage() {
   
   return (
     <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
-      <Head>
-        <title>О проекте | TechTrends</title>
-        <meta name="description" content="Узнайте о миссии и команде TechTrends - портала о технологических трендах и инновациях." />
-        <meta property="og:title" content="О проекте TechTrends" />
-        <meta property="og:description" content="Узнайте о миссии и команде TechTrends - портала о технологических трендах и инновациях." />
-      </Head>
       <Header />
       <div className={`container mx-auto px-4 py-12 mt-12 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="max-w-4xl mx-auto">
