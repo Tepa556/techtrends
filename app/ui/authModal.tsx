@@ -3,41 +3,43 @@ import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useThemeStore } from '../lib/ThemeStore';
+
 interface AuthModalProps {
     isOpen: boolean;
-    onClose: () => void;
-    onLogin: (email: string, password: string) => Promise<void>;
-    onRegister: (username: string, email: string, password: string, phone: string) => Promise<void>;
+    onCloseAction: () => void;
+    onLoginAction: (email: string, password: string) => Promise<void>;
+    onRegisterAction: (username: string, email: string, password: string, phone: string) => Promise<void>;
     error: string | null;
-    onOpenRegister: () => void; 
+    onOpenRegisterAction: () => void; 
 }
 
-export default function AuthModal({ isOpen, onClose, onLogin, onRegister, error, onOpenRegister }: AuthModalProps) {
+export default function AuthModal({ isOpen, onCloseAction, onLoginAction, onRegisterAction, error, onOpenRegisterAction }: AuthModalProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { theme } = useThemeStore();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await onLogin(email, password);
+            await onLoginAction(email, password);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleOpenRegister = () => {
-        onOpenRegister();
-        onClose();
+        onOpenRegisterAction();
+        onCloseAction();
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog open={isOpen} onClose={onCloseAction} maxWidth="sm" fullWidth>
             <DialogTitle className={`relative font-bold ${theme === 'dark' ? 'text-white bg-gray-900' : 'text-gray-800 bg-white'}`}>
                 <p className='font-bold '>Вход</p>
                 <button
-                    onClick={onClose}
+                    onClick={onCloseAction}
                     className="absolute right-6 top-3 text-gray-500 hover:text-gray-700 transition-colors "
                 >
                     <CloseIcon className='cursor-pointer'/>
