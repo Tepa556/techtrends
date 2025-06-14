@@ -343,11 +343,14 @@ export default function Header() {
             
             <AuthModal
                 isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-                onLogin={handleLogin}
-                onRegister={handleRegister}
+                onCloseAction={() => setIsAuthModalOpen(false)}
+                onLoginAction={handleLogin}
+                onRegisterAction={handleRegister}
                 error={error}
-                onOpenRegister={handleOpenRegister}
+                onOpenRegisterAction={() => {
+                    setIsAuthModalOpen(false);
+                    setIsRegModalOpen(true);
+                }}
             />
             <RegModal
                 isOpen={isRegModalOpen}
