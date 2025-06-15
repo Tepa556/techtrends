@@ -276,28 +276,28 @@ export default function Header() {
 
                             {/* Desktop User Section - Скрыто на мобильных и планшетах */}
                             <div className="hidden lg:flex items-center ml-2">
-                                {loading ? (
+                            {loading ? (
                                     <div className={`h-8 w-24 xl:w-32 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} rounded animate-pulse`}></div>
-                                ) : user ? (
-                                    <div className="flex items-center space-x-2">
-                                        {user.avatar && (
-                                            <Image
-                                                src={user.avatar}
+                            ) : user ? (
+                                <div className="flex items-center space-x-2">
+                                    {user.avatar && (
+                                        <Image
+                                            src={user.avatar}
                                                 alt="Аватар пользователя"
-                                                width={32}
-                                                height={32}
-                                                className="rounded-full"
-                                            />
-                                        )}
+                                            width={32}
+                                            height={32}
+                                            className="rounded-full"
+                                        />
+                                    )}
                                         <Link 
                                             href="/profile" 
                                             className={`text-sm font-semibold hover:underline transition duration-200 truncate max-w-24 xl:max-w-32 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                                             title={user.username || user.email}
                                         >
-                                            {user.username || user.email}
-                                        </Link>
-                                    </div>
-                                ) : (
+                                        {user.username || user.email}
+                                    </Link>
+                                </div>
+                            ) : (
                                     <div className="flex items-center space-x-2">
                                         <button 
                                             onClick={handleOpenLogin} 
@@ -312,8 +312,8 @@ export default function Header() {
                                             <span className="hidden xl:inline">Регистрация</span>
                                             <span className="xl:hidden">Регистр.</span>
                                         </button>
-                                    </div>
-                                )}
+                                </div>
+                            )}
                             </div>
 
                             {/* Mobile Menu Button - Показано только на мобильных и планшетах */}
@@ -399,30 +399,30 @@ export default function Header() {
                                             )}
                                             <div className="flex-1 min-w-0">
                                                 <div className={`text-base font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                                    {user.username || user.email}
+                                            {user.username || user.email}
                                                 </div>
                                                 <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     Перейти в профиль
                                                 </div>
                                             </div>
                                         </Link>
-                                    </div>
-                                ) : (
+                                </div>
+                            ) : (
                                     <div className="px-3 space-y-3">
-                                        <button 
-                                            onClick={handleOpenLogin} 
+                                    <button 
+                                        onClick={handleOpenLogin} 
                                             className={`w-full py-3 px-4 rounded-md text-center text-base font-semibold border transition-colors ${theme === 'dark' ? 'border-gray-600 text-white hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
-                                        >
-                                            Войти
-                                        </button>
-                                        <button 
-                                            onClick={handleOpenRegister} 
+                                    >
+                                        Войти
+                                    </button>
+                                    <button 
+                                        onClick={handleOpenRegister} 
                                             className={`w-full py-3 px-4 rounded-md text-center text-base font-semibold text-white transition-colors ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'}`}
-                                        >
-                                            Регистрация
-                                        </button>
-                                    </div>
-                                )}
+                                    >
+                                        Регистрация
+                                    </button>
+                                </div>
+                            )}
                             </div>
                         </div>
                     </div>
