@@ -25,10 +25,10 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
 
   return (
     <>
-      {/* Yandex.Metrika counter */}
+      {/* Yandex.Metrika counter - оптимизированная загрузка */}
       <Script
         id="yandex-metrica"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -40,7 +40,8 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
             ym(${ymId}, "init", {
                 clickmap:true,
                 trackLinks:true,
-                accurateTrackBounce:true
+                accurateTrackBounce:true,
+                defer: true
             });
           `,
         }}
@@ -51,6 +52,7 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
             src={`https://mc.yandex.ru/watch/${ymId}`}
             style={{ position: 'absolute', left: '-9999px' }}
             alt=""
+            loading="lazy"
           />
         </div>
       </noscript>

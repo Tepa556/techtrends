@@ -28,21 +28,23 @@ export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
 
   return (
     <>
-      {/* Google tag (gtag.js) */}
+      {/* Google tag (gtag.js) - оптимизированная загрузка */}
       <Script
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-        async
       />
       <Script
         id="google-analytics"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${gaId}');
+            gtag('config', '${gaId}', {
+              page_path: window.location.pathname,
+              send_page_view: false
+            });
           `,
         }}
       />
