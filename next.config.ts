@@ -16,16 +16,6 @@ const nextConfig: NextConfig = {
       config.output.crossOriginLoading = 'anonymous';
       config.output.chunkLoadTimeout = 30000; // 30 секунд таймаут
       
-      // Добавляем retry логику
-      const originalEntry = config.entry;
-      config.entry = async () => {
-        const entries = await originalEntry();
-        if (entries['main.js'] && !entries['main.js'].includes('./app/lib/chunkRetry.js')) {
-          entries['main.js'].unshift('./app/lib/chunkRetry.js');
-        }
-        return entries;
-      };
-      
       // Оптимизация разделения чанков
       config.optimization.splitChunks = {
         chunks: 'all',
