@@ -1,17 +1,41 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Оптимизация производительности
+  // Экспериментальные функции (убираем optimizeCss для стабильности)
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@mui/material', '@mui/icons-material'],
   },
   
-  // Оптимизация шрифтов
-  optimizeFonts: true,
-  
   // Сжатие
   compress: true,
+  
+  // Webpack конфигурация для обработки ошибок загрузки чанков
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Добавляем retry логику для загрузки чанков
+      config.output.crossOriginLoading = 'anonymous';
+      
+      // Настройка для лучшей обработки ошибок загрузки
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks.cacheGroups,
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    return config;
+  },
   
   // Оптимизация изображений
   images: {
@@ -60,20 +84,19 @@ const nextConfig: NextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
-          // Кэширование статических ресурсов
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
         ],
       },
-      // Специальные заголовки для шрифтов
+      // Оптимизированное кэширование для статических ресурсов
       {
-        source: '/_next/static/media/(.*)',
+        source: '/_next/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
           {
             key: 'Cross-Origin-Resource-Policy',
@@ -81,13 +104,17 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Заголовки для JS/CSS файлов
+      // Специальные заголовки для JS файлов
       {
-        source: '/_next/static/(.*)',
+        source: '/_next/static/chunks/(.*)',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
         ],
       },

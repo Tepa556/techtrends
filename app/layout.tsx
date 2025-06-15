@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import YandexMetrica from "./components/YandexMetrica";
+import ChunkLoadErrorHandler from "./components/ChunkLoadErrorHandler";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
@@ -29,6 +30,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        
+        {/* Обработчик ошибок загрузки чанков */}
+        <ChunkLoadErrorHandler />
         
         {/* Аналитика - только в продакшене */}
         {process.env.NODE_ENV === 'production' && (
