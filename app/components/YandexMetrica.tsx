@@ -25,6 +25,7 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
 
   return (
     <>
+      {/* Yandex.Metrika counter */}
       <Script
         id="yandex-metrica"
         strategy="afterInteractive"
@@ -39,8 +40,7 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
             ym(${ymId}, "init", {
                 clickmap:true,
                 trackLinks:true,
-                accurateTrackBounce:true,
-                webvisor:true
+                accurateTrackBounce:true
             });
           `,
         }}
@@ -60,15 +60,15 @@ export default function YandexMetrica({ ymId }: YandexMetricaProps) {
 
 // Функция для отслеживания целей
 export const trackYMGoal = (goalName: string, params?: object) => {
-  if (typeof window.ym !== 'undefined' && process.env.NEXT_PUBLIC_YM_ID) {
-    window.ym(parseInt(process.env.NEXT_PUBLIC_YM_ID), 'reachGoal', goalName, params);
+  if (typeof window.ym !== 'undefined') {
+    window.ym(102646909, 'reachGoal', goalName, params);
   }
 };
 
 // Функция для отслеживания событий
 export const trackYMEvent = (action: string, params?: object) => {
-  if (typeof window.ym !== 'undefined' && process.env.NEXT_PUBLIC_YM_ID) {
-    window.ym(parseInt(process.env.NEXT_PUBLIC_YM_ID), 'hit', window.location.href, {
+  if (typeof window.ym !== 'undefined') {
+    window.ym(102646909, 'hit', window.location.href, {
       title: document.title,
       referer: document.referrer,
       params: params

@@ -1,99 +1,64 @@
-"use client"
-import Header from '../layouts/header';
-import Footer from '../layouts/footer';
-import { useThemeStore } from '@/app/lib/ThemeStore';
+import type { Metadata } from 'next';
+import TermsOfServiceContent from './TermsOfServiceContent';
+
+// SEO метаданные для страницы условий использования
+export const metadata: Metadata = {
+  title: 'Условия использования - TechTrends',
+  description: 'Ознакомьтесь с условиями использования платформы TechTrends: правила пользования сайтом, права и обязанности пользователей, ограничения и политика контента.',
+  keywords: [
+    'условия использования',
+    'пользовательское соглашение',
+    'правила сайта',
+    'условия сервиса',
+    'права пользователей',
+    'обязанности пользователей',
+    'правила публикации',
+    'интеллектуальная собственность',
+    'techtrends'
+  ],
+  openGraph: {
+    title: 'Условия использования - TechTrends',
+    description: 'Правила и условия использования платформы TechTrends для всех пользователей',
+    type: 'website',
+    locale: 'ru_RU',
+  },
+  alternates: {
+    canonical: '/terms-of-service'
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
+};
 
 export default function TermsOfServicePage() {
-  const { theme } = useThemeStore();
+  // JSON-LD структурированные данные для страницы условий
+  const termsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Условия использования TechTrends',
+    description: 'Условия использования и пользовательское соглашение платформы TechTrends',
+    url: `${process.env.NODE_ENV === 'production' ? 'https://techtrends.app' : 'http://localhost:3000'}/terms-of-service`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'TechTrends',
+      url: process.env.NODE_ENV === 'production' ? 'https://techtrends.app' : 'http://localhost:3000',
+    },
+    dateModified: new Date().toISOString(),
+    inLanguage: 'ru-RU',
+  };
+
   return (
-    <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
-    <Header />
-    <div className="container mx-auto px-4 py-12 mt-12">
-      <div className="max-w-4xl mx-auto">
-        <h1 className={`text-4xl font-bold mb-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Условия использования</h1>
-        
-        <div className="prose prose-lg max-w-none">
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Последнее обновление: 01 июня 2023 г.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1. Принятие условий</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Добро пожаловать на TechTrends. Используя наш веб-сайт, вы соглашаетесь соблюдать и 
-            быть связанными настоящими Условиями использования. Если вы не согласны с каким-либо из 
-            этих условий, вам запрещается использовать или получать доступ к этому сайту.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2. Права интеллектуальной собственности</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Сайт и его оригинальное содержание, функции и функциональность являются собственностью 
-            TechTrends и защищены международными законами об авторском праве, товарных знаках, 
-            патентах, коммерческой тайне и другими законами об интеллектуальной собственности.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>3. Пользовательские аккаунты</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Когда вы создаете аккаунт на нашем сайте, вы обязаны предоставить точную, полную и 
-            актуальную информацию. Вы несете полную ответственность за поддержание безопасности 
-            вашей учетной записи и пароля и за ограничение доступа к вашему компьютеру. Вы 
-            соглашаетесь принять ответственность за все действия, которые происходят под вашей 
-            учетной записью или паролем.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>4. Ограничения</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Вы соглашаетесь не использовать сайт в следующих целях:
-          </p>
-          <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            <li>Незаконным образом или для содействия любой незаконной деятельности</li>
-            <li>Нарушения международных, федеральных, государственных или местных нормативных требований</li>
-            <li>Нарушения или поощрения нарушения наших или любых третьих сторон прав интеллектуальной собственности</li>
-            <li>Распространения вредоносного кода или вируса</li>
-            <li>Сбора или отслеживания личной информации других пользователей</li>
-            <li>Спама, фишинга, фарминга, обмана, взлома или аналогичных действий</li>
-          </ul>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>5. Пользовательский контент</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Когда вы создаете или делаете доступным любой контент на сайте, вы тем самым 
-            подтверждаете, что:
-          </p>
-          <ul className={`list-disc pl-8 mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            <li>Создание, распространение, передача, публичное отображение или исполнение, а также доступ, скачивание или копирование вашего контента не нарушает прав третьих лиц</li>
-            <li>Ваш контент не содержит вирусов, троянов, червей, вредоносных программ или других вредоносных или деструктивных материалов</li>
-            <li>Ваш контент не является спамом, не сгенерирован машиной или произведен случайным образом</li>
-          </ul>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>6. Отказ от ответственности</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Сайт и его содержимое предоставляются "как есть" и "как доступно" без каких-либо явных 
-            или подразумеваемых гарантий. TechTrends не дает никаких гарантий в отношении точности, 
-            надежности, полноты или своевременности сайта или его содержимого.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>7. Ограничение ответственности</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            В максимальной степени, разрешенной законом, TechTrends не несет ответственности за 
-            любые прямые, косвенные, случайные, последующие или штрафные убытки, возникшие в 
-            результате использования вами сайта или любых материалов или услуг, полученных через сайт.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>8. Изменения в условиях</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Мы оставляем за собой право изменять эти условия в любое время, и вы соглашаетесь 
-            соблюдать эти изменения. Мы рекомендуем вам периодически проверять эту страницу для 
-            ознакомления с последней версией наших условий.
-          </p>
-          
-          <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>9. Применимое право</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
-            Эти условия регулируются и толкуются в соответствии с законами Российской Федерации, 
-            без учета ее коллизионных норм.
-          </p>
-        </div>
-      </div>
-    </div>
-    <Footer />
-    </div>
+    <>
+      {/* JSON-LD структурированные данные */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(termsJsonLd),
+        }}
+      />
+      
+      <TermsOfServiceContent />
+    </>
   );
 } 

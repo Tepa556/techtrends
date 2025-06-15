@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import YandexMetrica from "./components/YandexMetrica";
@@ -14,32 +14,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NODE_ENV === 'production' 
-      ? 'https://techtrends.app' 
-      : 'http://localhost:3000'
-  ),
-  title: {
-    template: '%s | TechTrends',
-    default: 'TechTrends - Технологические тренды и инновации',
-  },
-  description: "Актуальные технологические тренды, новости и аналитика о разработке, ИИ и технологиях",
-  keywords: ["технологии", "программирование", "разработка", "инновации", "искусственный интеллект", "веб-разработка"],
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: process.env.NODE_ENV === 'production' 
-      ? 'https://techtrends.app' 
-      : 'http://localhost:3000'
-  },
-  other: {
-    'X-Robots-Tag': 'index, follow'
-  }
-};
 
 export default function RootLayout({
   children,
@@ -59,12 +33,12 @@ export default function RootLayout({
         {/* Аналитика - только в продакшене */}
         {process.env.NODE_ENV === 'production' && (
           <>
-            {process.env.NEXT_PUBLIC_GA_ID && (
-              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-            )}
-            {process.env.NEXT_PUBLIC_YM_ID && (
-              <YandexMetrica ymId={process.env.NEXT_PUBLIC_YM_ID} />
-            )}
+            <Suspense fallback={null}>
+              <GoogleAnalytics gaId="G-1G2QHCMQ3L" />
+            </Suspense>
+            <Suspense fallback={null}>
+              <YandexMetrica ymId="102646909" />
+            </Suspense>
             <SpeedInsights />
           </>
         )}

@@ -13,11 +13,6 @@ export const metadata: Metadata = {
     title: 'TechTrends - Технологические тренды и инновации',
     description: 'Актуальные технологические тренды, новости и аналитика о разработке, ИИ и технологиях',
     type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TechTrends - Технологические тренды и инновации',
-    description: 'Актуальные технологические тренды, новости и аналитика о разработке, ИИ и технологиях',
   }
 };
 

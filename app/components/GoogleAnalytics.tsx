@@ -1,12 +1,13 @@
 'use client';
 
 import Script from 'next/script';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 declare global {
   interface Window {
     gtag: (...args: any[]) => void;
+    dataLayer: any[];
   }
 }
 
@@ -16,21 +17,22 @@ interface GoogleAnalyticsProps {
 
 export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (typeof window.gtag !== 'undefined') {
       window.gtag('config', gaId, {
-        page_path: pathname + searchParams.toString(),
+        page_path: pathname,
       });
     }
-  }, [pathname, searchParams, gaId]);
+  }, [pathname, gaId]);
 
   return (
     <>
+      {/* Google tag (gtag.js) */}
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+        async
       />
       <Script
         id="google-analytics"
@@ -40,9 +42,7 @@ export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${gaId}', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', '${gaId}');
           `,
         }}
       />
@@ -64,7 +64,7 @@ export const trackEvent = (action: string, category: string, label?: string, val
 // Функция для отслеживания просмотров страниц
 export const trackPageView = (url: string) => {
   if (typeof window.gtag !== 'undefined') {
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+    window.gtag('config', 'G-1G2QHCMQ3L', {
       page_path: url,
     });
   }

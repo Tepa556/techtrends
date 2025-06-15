@@ -1,46 +1,66 @@
-"use client"
+import type { Metadata } from 'next';
 import React from 'react';
-import Header from '../layouts/header';
-import Footer from '../layouts/footer';
-import { useThemeStore } from '@/app/lib/ThemeStore';
+import AboutContent from './AboutContent';
+
+// SEO метаданные для страницы "О нас"
+export const metadata: Metadata = {
+  title: 'О проекте TechTrends - Наша миссия и команда',
+  description: 'Узнайте больше о команде TechTrends, нашей миссии по освещению технологических трендов и инноваций. Мы объединяем экспертов в области ИИ, веб-разработки и кибербезопасности.',
+  keywords: [
+    'о нас',
+    'наша миссия',
+    'технологические тренды',
+    'инновации',
+    'искусственный интеллект',
+    'веб-разработка',
+    'кибербезопасность'
+  ],
+  openGraph: {
+    title: 'О проекте TechTrends - Наша миссия и команда',
+    description: 'Команда технологических энтузиастов, программистов и аналитиков, объединенных страстью к инновациям',
+    type: 'website',
+    locale: 'ru_RU',
+  },
+  alternates: {
+    canonical: '/about'
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
+};
+
+// JSON-LD структурированные данные для организации
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'TechTrends',
+  description: 'Платформа для освещения технологических трендов и инноваций',
+  url: process.env.NODE_ENV === 'production' ? 'https://techtrends.app' : 'http://localhost:3000',
+  logo: process.env.NODE_ENV === 'production' ? 'https://techtrends.app/logo.png' : 'http://localhost:3000/logo.png',
+  foundingDate: '2024',
+  sameAs: [
+    // Добавьте ссылки на социальные сети, если есть
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    availableLanguage: 'Russian'
+  }
+};
 
 export default function AboutPage() {
-  const { theme } = useThemeStore();
-  
   return (
-    <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
-      <Header />
-      <div className={`container mx-auto px-4 py-12 mt-12 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
-        <div className="max-w-4xl mx-auto">
-          <h1 className={`text-4xl font-bold mb-8 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>О проекте TechTrends</h1>
-              
-          <div className={`prose prose-lg max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}>
-            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Наша миссия</h2>
-            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
-              TechTrends был создан с целью помочь людям ориентироваться в быстро меняющемся мире 
-              технологий. Наша миссия — предоставлять точную, своевременную и доступную информацию 
-              о последних технологических трендах, инновациях и их влиянии на общество.
-            </p>
-            
-            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Кто мы</h2>
-            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
-              Мы команда технологических энтузиастов, программистов, аналитиков и журналистов, 
-              объединенных общей страстью к инновациям. Каждый член нашей команды специализируется 
-              в определенной области технологий, что позволяет нам охватывать широкий спектр тем: 
-              от искусственного интеллекта и больших данных до веб-разработки и кибербезопасности.
-            </p>
-            
-            <h2 className={`text-3xl font-bold mt-8 mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Наши ценности</h2>
-            <ul className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
-              <li><strong>Достоверность</strong>: Мы тщательно проверяем все факты перед публикацией.</li>
-              <li><strong>Доступность</strong>: Мы стремимся объяснять сложные технические концепции простым языком.</li>
-              <li><strong>Объективность</strong>: Мы представляем разные точки зрения и избегаем предвзятости.</li>
-              <li><strong>Инновационность</strong>: Мы постоянно ищем новые форматы и подходы к подаче информации.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </div>
+    <>
+      {/* JSON-LD структурированные данные */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationJsonLd),
+        }}
+      />
+      
+      <AboutContent />
+    </>
   );
 } 

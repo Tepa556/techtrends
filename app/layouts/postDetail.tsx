@@ -70,6 +70,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
         
         // Получение информации об авторе
         if (data.author) {
+          try {
           const authorResponse = await fetch('/api/posts/author', {
             method: 'POST',
             headers: {
@@ -81,6 +82,9 @@ export default function PostDetail({ postId }: PostDetailProps) {
           if (authorResponse.ok) {
             const authorData = await authorResponse.json();
             setAuthorData(authorData);
+            }
+          } catch (authorError) {
+            // Тихо игнорируем ошибки загрузки данных автора
           }
         }
         

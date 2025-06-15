@@ -43,7 +43,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, featured = false }) => {
           }
         }
       } catch (error) {
-        console.error('Ошибка при получении аватара автора:', error);
+        // Тихо игнорируем ошибки загрузки аватара, используем дефолтный
       } finally {
         setIsLoading(false);
       }
