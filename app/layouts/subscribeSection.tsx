@@ -16,7 +16,7 @@ const SubscribeSection = () => {
                     </p>
                     <div className="max-w-md mx-auto">
                         <a 
-                            href="https://t.me/techtrends_channel" 
+                            href="https://t.me/techtrendsapp" 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             className="inline-flex items-center justify-center gap-2 glass-button px-6 py-3 rounded-lg whitespace-nowrap text-white font-bold transition-colors duration-300 bg-blue-500 hover:bg-blue-600"

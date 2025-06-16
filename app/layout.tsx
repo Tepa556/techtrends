@@ -4,7 +4,6 @@ import "./globals.css";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import YandexMetrica from "./components/YandexMetrica";
 import ChunkLoadErrorHandler from "./components/ChunkLoadErrorHandler";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +42,6 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <YandexMetrica ymId="102646909" />
             </Suspense>
-            <SpeedInsights />
           </>
         )}
       </body>

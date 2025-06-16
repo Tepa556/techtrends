@@ -23,37 +23,6 @@ const getBaseUrl = () => {
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseUrl();
   
-  // Проверяем, является ли текущий домен preview-доменом Vercel
-  // Это нужно для блокировки индексации тестовых/промежуточных версий сайта
-  const isVercelDomain = (
-    process.env.VERCEL_URL && 
-    process.env.VERCEL_URL.includes('vercel.app') &&
-    !process.env.VERCEL_URL.includes('techtrends.app')
-  ) || (
-    process.env.VERCEL_BRANCH_URL && 
-    process.env.VERCEL_BRANCH_URL.includes('vercel.app')
-  );
-  
-  // Логируем информацию о генерации robots.txt для отладки
-  console.log('Robots.txt генерация:', {
-    baseUrl,
-    isVercelDomain,
-    nodeEnv: process.env.NODE_ENV,
-    vercelUrl: process.env.VERCEL_URL
-  });
-  
-  // Если это preview-домен Vercel, блокируем индексацию всего сайта
-  if (isVercelDomain) {
-    return {
-      rules: [
-        {
-          userAgent: '*',
-          disallow: ['/'],
-        },
-      ],
-    };
-  }
-  
   // Для продакшн и локальной разработки настраиваем стандартные правила
   return {
     rules: [

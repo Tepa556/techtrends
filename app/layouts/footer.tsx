@@ -1,4 +1,3 @@
-
 "use client"
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -18,7 +17,7 @@ export default function Footer() {
                         <a href="/" className={`text-xl md:text-2xl font-bold tracking-tight transition-colors hover:text-blue-600 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>TechTrends</a>
                         <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Ваш источник последних технологических трендов, новостей и информации.</p>
                         <div className="mt-4 flex space-x-4">
-                            <a href="https://t.me/techtrends_channel" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                            <a href="https://t.me/techtrendsapp" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors flex items-center">
                                 <TelegramIcon />
                             </a>
                         </div>

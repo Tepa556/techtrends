@@ -62,8 +62,6 @@ const nextConfig: NextConfig = {
     JWT_SECRET: process.env.JWT_SECRET,
   },
   
-  // Убираем редиректы из next.config.ts, оставляем только в vercel.json
-  
   async headers() {
     return [
       {

@@ -3,8 +3,6 @@ import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Убедитесь, что вы установили типы для jsonwebtoken
-// npm install --save-dev @types/jsonwebtoken
 
 const uri = `${process.env.MONGODB_URL}`;
 const jwtSecret = `${process.env.JWT_SECRET}`;
@@ -45,8 +43,3 @@ export async function POST(req: NextRequest) {
         await client.close();
     }
 }
-
-// Если вам нужно обработать другие методы, например, GET, вы можете добавить их как именованные экспорты
-// export async function GET(req: NextApiRequest, res: NextApiResponse) {
-//     res.status(405).json({ error: 'Метод не разрешен' });
-// }
