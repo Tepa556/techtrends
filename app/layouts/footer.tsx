@@ -1,8 +1,4 @@
 "use client"
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import MailIcon from '@mui/icons-material/Mail';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import { useThemeStore } from '../lib/ThemeStore';
 
