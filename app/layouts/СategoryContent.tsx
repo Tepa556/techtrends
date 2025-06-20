@@ -133,7 +133,7 @@ const CategoryContent = () => {
   return (
     <div className="container mx-auto px-4 py-16 min-h-[calc(100vh-200px)]">
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mt-4`}>{categoryTitle}</h1>
+        <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mt-4`}>{categoryTitle === 'ui-ux-дизайн' ? 'UI/UX Дизайн' : categoryTitle}</h1>
         <div className="w-20 h-1 bg-blue-600 mt-2 mb-6"></div>
       </div>
 

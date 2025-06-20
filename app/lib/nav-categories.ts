@@ -6,6 +6,6 @@ export const categories = [
     { name: 'Кибербезопасность', link: '/category/Кибербезопасность' },
     { name: 'Блокчейн', link: '/category/Блокчейн' },
     { name: 'DevOps', link: '/category/DevOps' },
-    { name: 'UI/UX Дизайн', link: '/category/UI/UX-Дизайн' },
+    { name: 'UI/UX Дизайн', link: '/category/ui-ux-дизайн' },
     { name: 'Стартапы', link: '/category/Стартапы' },
 ];
