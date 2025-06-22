@@ -453,22 +453,38 @@ export default function UserProfile() {
                             <div role="tablist" aria-orientation="horizontal" className={`h-30 overflow-y-hidden items-center rounded-md inline-flex w-auto justify-start p-5 gap-10 ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`} tabIndex={0} style={{ outline: 'none' }}>
                                 {subscriptionUsers.length > 0 ? (
                                     subscriptionUsers.map((sub) => (
-                                        <div key={sub._id} className={`p-4 pr-5 rounded-lg shadow-md flex items-center ${theme === 'dark' ? 'bg-gray-600' : 'bg-white'}`}>
-                                            {sub.avatar && (
-                                                <Image
-                                                    src={sub.avatar}
-                                                    alt={`${sub.username} Avatar`}
-                                                    width={40}
-                                                    height={40}
-                                                    className="rounded-full mr-4"
+                                        <div key={sub._id} className={`p-4 pr-5 rounded-lg shadow-md flex items-center justify-between gap-4 ${theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:bg-gray-50'} transition-colors`}>
+                                            <div 
+                                                className="flex items-center cursor-pointer flex-1 mr-4"
+                                                onClick={() => router.push(`/profiles/${sub._id}`)}
+                                                title={`Перейти к профилю ${sub.username}`}
+                                            >
+                                                {sub.avatar ? (
+                                                    <Image
+                                                        src={sub.avatar}
+                                                        alt={`${sub.username} Avatar`}
+                                                        width={40}
+                                                        height={40}
+                                                        className="rounded-full mr-4"
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center mr-4">
+                                                        <span className="text-white font-bold text-lg">
+                                                            {sub.username.charAt(0).toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <span className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} hover:text-blue-500 transition-colors font-bold`}>
+                                                    {sub.username}
+                                                </span>
+                                            </div>
+                                            <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+                                                <SubscribeButton
+                                                    userEmail={sub.email}
+                                                    currentUserEmail={user.email}
+                                                    onSubscriptionChange={handleSubscriptionChange}
                                                 />
-                                            )}
-                                            <span className={`mr-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{sub.username}</span>
-                                            <SubscribeButton
-                                                userEmail={sub.email}
-                                                currentUserEmail={user.email}
-                                                onSubscriptionChange={handleSubscriptionChange}
-                                            />
+                                            </div>
                                         </div>
                                     ))
                                 ) : (
