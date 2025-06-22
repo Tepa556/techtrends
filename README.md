@@ -58,7 +58,6 @@ TechTrends - это полнофункциональная веб-платфор
 - **Tailwind CSS** - Utility-first CSS фреймворк
 - **Material-UI** - React компоненты
 - **Zustand** - Управление состоянием
-- **Socket.IO** - Реалтайм коммуникация
 
 ### Backend
 - **Next.js API Routes** - Серверная логика
@@ -268,7 +267,3 @@ NEXT_PUBLIC_YM_ID=        # Yandex Metrica ID
 - [MongoDB документация](https://docs.mongodb.com/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Material-UI](https://mui.com/)
-
----
-
-
