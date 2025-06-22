@@ -271,4 +271,4 @@ NEXT_PUBLIC_YM_ID=        # Yandex Metrica ID
 
 ---
 
-Создано с ❤️ командой TechTrends
+
